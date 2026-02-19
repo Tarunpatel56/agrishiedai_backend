@@ -1,0 +1,18 @@
+# Credentials and Secrets
+.env
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# ML Models (Large files)
+*.h5
+
+# Project Specific Data
+project_data/uploads/
+stored_crops/
+last_scan.json
+
+# OS Specific
+.DS_Store
+Thumbs.db

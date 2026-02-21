@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from services.groq_crop_analysis import analyze_crop_with_groq
 from services.weather_service import get_recent_weather
 from services.market_service import get_market_prices
+from services.groq_soil_analysis import analyze_soil_image, get_plant_recommendations, get_crop_recommendations
 
 load_dotenv()
 app = Flask(__name__)
@@ -15,7 +16,9 @@ CORS(app)
 
 DATA_FILE = "last_scan.json"
 UPLOAD_FOLDER = "stored_crops"
+SOIL_UPLOAD_FOLDER = "stored_soil"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(SOIL_UPLOAD_FOLDER, exist_ok=True)
 
 
 # ========================
@@ -98,14 +101,71 @@ def mandi_prices():
 
 
 # ========================
-# 5. HEALTH CHECK
+# 5. SOIL ANALYSIS
+# ========================
+@app.route('/analyze-soil', methods=['POST'])
+def analyze_soil():
+    try:
+        if 'file' not in request.files:
+            return jsonify({"error": "No file uploaded"}), 400
+        file = request.files['file']
+        filename = f"soil_{len(os.listdir(SOIL_UPLOAD_FOLDER)) + 1}.jpg"
+        filepath = os.path.join(SOIL_UPLOAD_FOLDER, filename)
+        file.save(filepath)
+        print(f"[AgriShield] Soil image saved: {filepath}")
+        result = analyze_soil_image(filepath)
+        if "error" in result:
+            return jsonify({"status": "Error", "error": result["error"]}), 500
+        return jsonify({"status": "Success", "data": result})
+    except Exception as e:
+        print(f"[AgriShield] Soil Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/soil-plant-recommendations', methods=['POST'])
+def soil_plant_recs():
+    try:
+        soil_data = request.get_json()
+        result = get_plant_recommendations(soil_data)
+        if "error" in result:
+            return jsonify({"status": "Error", "error": result["error"]}), 500
+        return jsonify({"status": "Success", "data": result["plants"]})
+    except Exception as e:
+        print(f"[AgriShield] Plant Rec Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/soil-crop-recommendations', methods=['POST'])
+def soil_crop_recs():
+    try:
+        import json as jlib
+        soil_data = jlib.loads(request.form.get('soil_data', '{}'))
+        field_files = request.files.getlist('field_images')
+        if len(field_files) < 3:
+            return jsonify({"error": "Minimum 3 field photos required"}), 400
+        saved_paths = []
+        for i, f in enumerate(field_files):
+            fp = os.path.join(SOIL_UPLOAD_FOLDER, f"field_{i+1}.jpg")
+            f.save(fp)
+            saved_paths.append(fp)
+        result = get_crop_recommendations(soil_data, saved_paths)
+        if "error" in result:
+            return jsonify({"status": "Error", "error": result["error"]}), 500
+        return jsonify({"status": "Success", "data": result["crops"]})
+    except Exception as e:
+        print(f"[AgriShield] Crop Rec Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ========================
+# 6. HEALTH CHECK
 # ========================
 @app.route('/', methods=['GET'])
 def health_check():
     return jsonify({
         "status": "AgriShield AI Backend Running",
-        "version": "2.0",
-        "endpoints": ["/predict", "/last-scan", "/weather-advisory", "/mandi-prices"]
+        "version": "3.0",
+        "endpoints": ["/predict", "/last-scan", "/weather-advisory", "/mandi-prices", "/analyze-soil", "/soil-plant-recommendations", "/soil-crop-recommendations"]
     })
 
 

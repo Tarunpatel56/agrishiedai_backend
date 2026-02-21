@@ -1,17 +1,14 @@
-import os
-import base64
-import json
+"""
+Crop Analysis Service
+=====================
+Uses groq_client for all API calls.
+"""
+
 import re
-import requests
+import json
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
+from services.groq_client import call_groq, parse_json_response, extract_json_object
 
-load_dotenv()
-
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-# Llama 4 Scout supports multimodal (vision) input
-GROQ_VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 # Crop lifecycle database for harvest prediction
 CROP_LIFECYCLE = {
@@ -75,29 +72,22 @@ IMPORTANT RULES:
 7. RESPOND WITH ONLY THE JSON — no other text before or after"""
 
 
-def encode_image_to_base64(image_path):
-    """Encode image file to base64 string."""
-    with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode("utf-8")
-
-
 def calculate_harvest_prediction(crop_name, estimated_age_str):
     """Calculate harvest prediction from crop lifecycle database."""
     crop_key = crop_name.lower().strip()
-    
+
     # Find matching crop in database
     lifecycle_info = None
     for key, val in CROP_LIFECYCLE.items():
         if key in crop_key or crop_key in key:
             lifecycle_info = val
             break
-    
+
     if not lifecycle_info:
-        # Default lifecycle if crop not in database
         lifecycle_info = {"total_days": 120, "hindi": crop_name}
-    
+
     total_days = lifecycle_info["total_days"]
-    
+
     # Parse age range (e.g., "30-35" -> average 32)
     try:
         age_parts = re.findall(r'\d+', str(estimated_age_str))
@@ -109,10 +99,10 @@ def calculate_harvest_prediction(crop_name, estimated_age_str):
             avg_age = total_days // 3
     except:
         avg_age = total_days // 3
-    
+
     days_remaining = max(0, total_days - avg_age)
     harvest_date = (datetime.now() + timedelta(days=days_remaining)).strftime("%d %B %Y")
-    
+
     return {
         "total_lifecycle_days": total_days,
         "estimated_current_age": avg_age,
@@ -123,83 +113,34 @@ def calculate_harvest_prediction(crop_name, estimated_age_str):
 
 def analyze_crop_with_groq(image_path):
     """
-    Send crop image to Groq's Llama 3.2 Vision model for comprehensive analysis.
-    Returns a structured dictionary with all crop analysis data.
+    Send crop image to Groq Vision for comprehensive analysis.
+    Uses central groq_client for the API call.
     """
-    if not GROQ_API_KEY:
-        return {"error": "GROQ_API_KEY not configured"}
-    
-    # Encode image
-    base64_image = encode_image_to_base64(image_path)
-    
-    # Determine image mime type
-    ext = image_path.lower().split('.')[-1]
-    mime_map = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}
-    mime_type = mime_map.get(ext, "image/jpeg")
-    
-    # Build Groq API request
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "model": GROQ_VISION_MODEL,
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": ANALYSIS_PROMPT
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:{mime_type};base64,{base64_image}"
-                        }
-                    }
-                ]
-            }
-        ],
-        "temperature": 0.3,
-        "max_tokens": 2048,
-        "top_p": 0.9
-    }
-    
+    result = call_groq(
+        ANALYSIS_PROMPT,
+        images=[image_path],
+        temperature=0.3,
+        max_tokens=2048,
+        timeout=60,
+        tag="CropAnalysis",
+    )
+
+    if not result["success"]:
+        return {"error": result["error"]}
+
+    raw_text = result["raw"]
+
     try:
-        print("[AgriShield] Sending image to Groq Vision API...")
-        response = requests.post(GROQ_API_URL, headers=headers, json=payload, timeout=60)
-        
-        if response.status_code != 200:
-            print(f"[AgriShield] Groq API Error {response.status_code}: {response.text}")
-            return {"error": f"Groq API Error: {response.status_code}", "details": response.text}
-        
-        result = response.json()
-        raw_text = result["choices"][0]["message"]["content"].strip()
-        
-        print(f"[AgriShield] Raw Groq response: {raw_text[:200]}...")
-        
-        # Parse JSON from response (handle markdown code blocks)
-        json_text = raw_text
-        if "```json" in json_text:
-            json_text = json_text.split("```json")[1].split("```")[0].strip()
-        elif "```" in json_text:
-            json_text = json_text.split("```")[1].split("```")[0].strip()
-        
-        # Try to find JSON object in text
-        json_match = re.search(r'\{[\s\S]*\}', json_text)
-        if json_match:
-            json_text = json_match.group()
-        
+        json_text = parse_json_response(raw_text)
+        json_text = extract_json_object(json_text)
         analysis = json.loads(json_text)
-        
+
         # Calculate harvest prediction
         harvest_info = calculate_harvest_prediction(
             analysis.get("crop_name", "Unknown"),
             analysis.get("estimated_age_days", "30-40")
         )
-        
+
         # Build final structured response
         final_result = {
             "crop_name": analysis.get("crop_name", "Unknown Crop"),
@@ -225,12 +166,11 @@ def analyze_crop_with_groq(image_path):
             "total_lifecycle": harvest_info["total_lifecycle_days"],
             "confidence": analysis.get("confidence", 0),
         }
-        
+
         return final_result
-        
+
     except json.JSONDecodeError as e:
         print(f"[AgriShield] JSON Parse Error: {e}")
-        print(f"[AgriShield] Raw text was: {raw_text}")
         return {"error": "Failed to parse AI response", "raw_response": raw_text[:500]}
     except Exception as e:
         print(f"[AgriShield] Error: {e}")

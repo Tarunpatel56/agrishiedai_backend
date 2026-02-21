@@ -16,3 +16,4 @@ last_scan.json
 # OS Specific
 .DS_Store
 Thumbs.db
+groq_client.py

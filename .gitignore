@@ -12,6 +12,7 @@ __pycache__/
 project_data/uploads/
 stored_crops/
 last_scan.json
+stored_soil/
 
 # OS Specific
 .DS_Store

@@ -73,7 +73,10 @@ Based on this soil analysis, recommend 20-25 PLANTS that can be grown in POTS, C
 {soil_info}
 
 CRITICAL RULES:
-- ONLY recommend plants that can be grown in POTS/GAMLA/HOME GARDEN — like flowers, herbs, medicinal plants, ornamental plants, small vegetables (tomato, chili, mint, tulsi, etc.)
+- IMPORTANT: List ALL FLOWER plants FIRST in the array, then other types after flowers.
+- Include at least 8-10 FLOWER plants like Rose, Marigold, Jasmine, Hibiscus, Sunflower, Lily, Dahlia, Mogra, Champa, Sadabahar, Bougainvillea, Rajnigandha, Chameli, Genda, Gulmohar etc.
+- Then include herbs, medicinal plants, ornamental plants, small vegetables (tomato, chili, mint, tulsi, etc.)
+- ONLY recommend plants that can be grown in POTS/GAMLA/HOME GARDEN
 - DO NOT recommend field crops like wheat, rice, sugarcane, cotton, soybean etc. Those belong in CROPS section.
 - Rate each plant: Excellent (best match), Good (grows well), Moderate (will survive)
 - All benefits from FARMER/GROWER perspective (easy to maintain, saves money, medicinal value, sells well in local market)
@@ -103,7 +106,7 @@ Respond with ONLY a valid JSON array:
   }}
 ]
 
-Give REALISTIC Indian home garden data. Respond with ONLY JSON array."""
+REMEMBER: Flower plants MUST come FIRST in the array. Give REALISTIC Indian home garden data. Respond with ONLY JSON array."""
 
     result = call_groq_json_array(
         prompt,
@@ -121,12 +124,22 @@ Give REALISTIC Indian home garden data. Respond with ONLY JSON array."""
 # =====================================================
 # 3. CROP RECOMMENDATIONS (Field-level farming)
 # =====================================================
-def get_crop_recommendations(soil_data, image_paths):
+def get_crop_recommendations(soil_data, image_paths, season=None):
     """Get field crop recommendations using soil data + field photos."""
     if len(image_paths) < 3:
         return {"error": "Minimum 3 field photos required"}
 
     soil_info = _format_soil_info(soil_data)
+
+    # Build season filter instruction
+    season_filter = ""
+    if season:
+        season_map = {
+            "winter": "ONLY recommend RABI / WINTER season crops like Wheat, Mustard, Gram (Chana), Peas, Barley, Lentil (Masoor), Chickpea, Linseed, Safflower, Fenugreek (Methi), Coriander, Cumin, Potato, Onion, Garlic, Carrot, Radish, Spinach, Cauliflower, Cabbage, Broccoli, Beetroot, Turnip, Fennel (Saunf). DO NOT include any Kharif or Zaid crops.",
+            "summer": "ONLY recommend ZAID / SUMMER season crops like Watermelon, Muskmelon, Cucumber, Moong (Green Gram), Urad, Sunflower, Groundnut (Summer), Sesame, Pumpkin, Bottle Gourd, Bitter Gourd, Ridge Gourd, Sponge Gourd, Okra (Lady Finger), Tomato, Brinjal, Capsicum, Maize (Summer), Cowpea (Lobia), Cluster Bean. DO NOT include any Kharif or Rabi crops.",
+            "rainy": "ONLY recommend KHARIF / RAINY season crops like Rice (Paddy), Maize, Soybean, Cotton, Sugarcane, Bajra (Pearl Millet), Jowar (Sorghum), Arhar/Tur Dal, Urad (Kharif), Moong (Kharif), Groundnut, Sesame, Castor, Jute, Turmeric, Ginger, Chilli, Sorghum, Ragi, Foxtail Millet, Barnyard Millet. DO NOT include any Rabi or Zaid crops."
+        }
+        season_filter = season_map.get(season.lower(), "")
 
     prompt = f"""You are an expert Indian agricultural scientist advising FARMERS for FIELD-LEVEL FARMING.
 
@@ -135,8 +148,11 @@ Analyze these {len(image_paths)} field photos with soil data to recommend 20-25 
 SOIL DATA:
 {soil_info}
 
+{f"SEASON FILTER: {season_filter}" if season_filter else ""}
+
 CRITICAL RULES:
-- ONLY recommend FIELD CROPS grown on agricultural land/farms — like wheat, rice, sugarcane, cotton, soybean, mustard, maize, pulses, oilseeds etc.
+- ONLY recommend FIELD CROPS grown on agricultural land/farms
+{f"- {season_filter}" if season_filter else "- Include crops from all seasons (Kharif, Rabi, Zaid)"}
 - DO NOT recommend pot/garden plants like tulsi, mint, ornamental flowers etc. Those belong in PLANTS section.
 - Rate each crop: Excellent (best match for this soil), Good (grows well), Moderate (will produce)
 - All benefits/drawbacks from FARMER perspective (profit, investment, labor, water, MSP, government support)

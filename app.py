@@ -140,6 +140,7 @@ def soil_crop_recs():
     try:
         import json as jlib
         soil_data = jlib.loads(request.form.get('soil_data', '{}'))
+        season = request.form.get('season', None)  # winter / summer / rainy
         field_files = request.files.getlist('field_images')
         if len(field_files) < 3:
             return jsonify({"error": "Minimum 3 field photos required"}), 400
@@ -148,7 +149,7 @@ def soil_crop_recs():
             fp = os.path.join(SOIL_UPLOAD_FOLDER, f"field_{i+1}.jpg")
             f.save(fp)
             saved_paths.append(fp)
-        result = get_crop_recommendations(soil_data, saved_paths)
+        result = get_crop_recommendations(soil_data, saved_paths, season=season)
         if "error" in result:
             return jsonify({"status": "Error", "error": result["error"]}), 500
         return jsonify({"status": "Success", "data": result["crops"]})

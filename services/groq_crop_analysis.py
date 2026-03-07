@@ -59,6 +59,10 @@ Required JSON structure:
   "fertilizer_recommendation": "what fertilizer to apply now with exact dosage per acre",
   "growth_tips": "3-4 tips to maximize growth at this stage",
   "harvest_readiness": "how to know when crop is ready for harvest",
+  "pest_detected": "pest name if any visible (e.g., Aphids, Bollworm, Stem Borer, Whitefly, Jassids, Thrips, Mealybug), or 'No pest detected'",
+  "pest_type": "type of pest (e.g., Sucking pest, Boring pest, Chewing pest, Defoliator) or 'N/A'",
+  "pest_removal_organic": "organic/natural methods to remove this pest — neem oil spray, bio-agents like Trichogramma, pheromone traps, sticky traps, etc. with dosage. Or 'N/A' if no pest",
+  "pest_removal_chemical": "chemical pesticide names with exact dosage per acre — e.g., Imidacloprid 17.8 SL @ 100ml/acre, Chlorpyrifos 20 EC @ 500ml/acre. Or 'N/A' if no pest",
   "confidence": 88
 }
 
@@ -69,7 +73,8 @@ IMPORTANT RULES:
 4. Confidence should be 0-100 based on image clarity
 5. Be specific with product names and dosages
 6. If you cannot identify the crop clearly, still provide your best analysis
-7. RESPOND WITH ONLY THE JSON — no other text before or after"""
+7. For pest detection, look for visible insect damage, holes in leaves, curling, webbing, etc.
+8. RESPOND WITH ONLY THE JSON — no other text before or after"""
 
 
 def calculate_harvest_prediction(crop_name, estimated_age_str):
@@ -164,6 +169,10 @@ def analyze_crop_with_groq(image_path):
             "harvest_days": harvest_info["days_to_harvest"],
             "harvest_date": harvest_info["expected_harvest_date"],
             "total_lifecycle": harvest_info["total_lifecycle_days"],
+            "pest_detected": analysis.get("pest_detected", "No pest detected"),
+            "pest_type": analysis.get("pest_type", "N/A"),
+            "pest_removal_organic": analysis.get("pest_removal_organic", "N/A"),
+            "pest_removal_chemical": analysis.get("pest_removal_chemical", "N/A"),
             "confidence": analysis.get("confidence", 0),
         }
 

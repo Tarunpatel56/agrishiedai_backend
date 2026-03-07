@@ -25,3 +25,48 @@ soil_uploads/
 .DS_Store
 Thumbs.db
 groq_client.py
+
+# Security
+.env
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# AI Models
+*.h5
+*.pt
+
+# Data & Storage (Large folders)
+stored_crops/
+stored_soil/
+project_data/uploads/
+
+# Runtime JSON data
+alert_history.json
+last_scan.json
+
+# Local Environment
+venv/
+# Security
+.env
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# AI Models
+*.h5
+*.pt
+
+# Data & Storage (Large folders)
+stored_crops/
+stored_soil/
+project_data/uploads/
+
+# Runtime JSON data
+alert_history.json
+last_scan.json
+
+# Local Environment
+venv/

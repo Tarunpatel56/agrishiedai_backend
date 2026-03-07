@@ -1,0 +1,714 @@
+[
+  {
+    "timestamp": "2026-03-06T21:17:14.299454",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-06T21:16:40.193985",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Cotton",
+    "health_score": 90,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-06T21:13:53.245481",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Wheat",
+    "health_score": 90,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-06T21:05:10.994635",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Wheat",
+    "health_score": 70,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-06T09:50:43.196681",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-06T09:46:01.184724",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Sesame",
+    "health_score": 100,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-06T08:12:11.968971",
+    "type": "crop_scan",
+    "alert_level": "CRITICAL",
+    "crop_name": "Maize",
+    "health_score": 20,
+    "disease": "No disease detected, but stress likely due to waterlogging",
+    "actions": [
+      "voice_call",
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "voice_call",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "voice_call",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-05T17:15:40.687517",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Wheat",
+    "health_score": 90,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-05T17:14:15.420987",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Wheat",
+    "health_score": 90,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-04T22:23:35.866119",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Wheat",
+    "health_score": 70,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T23:22:30.815502",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T23:04:10.774649",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T22:37:33.935842",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T22:31:15.682015",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T22:28:40.625773",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T22:28:05.089957",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T22:27:33.366399",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T22:26:58.539957",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Cotton",
+    "health_score": 90,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T22:25:15.530254",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T22:18:07.981998",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T21:47:21.495901",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Loamy",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T21:46:09.931458",
+    "type": "soil_analysis",
+    "alert_level": "INFO",
+    "soil_type": "Black Cotton",
+    "actions": [
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "whatsapp",
+          "note": "Twilio disabled"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T21:45:31.041523",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Wheat",
+    "health_score": 70,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T21:45:14.050060",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Wheat",
+    "health_score": 90,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-02T21:44:54.392313",
+    "type": "crop_scan",
+    "alert_level": "INFO",
+    "crop_name": "Cotton",
+    "health_score": 80,
+    "disease": "No disease detected",
+    "actions": [
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "disabled",
+          "type": "sms",
+          "note": "Twilio disabled"
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-02-28T19:37:16.197962",
+    "type": "crop_scan",
+    "alert_level": "CRITICAL",
+    "crop_name": "Unknown",
+    "health_score": 0,
+    "disease": "No disease detected",
+    "actions": [
+      "voice_call",
+      "whatsapp",
+      "sms"
+    ],
+    "results": [
+      {
+        "type": "voice_call",
+        "result": {
+          "success": true,
+          "sid": "CA869527a166d22fff1df7971406285f0c",
+          "type": "voice_call"
+        }
+      },
+      {
+        "type": "whatsapp",
+        "result": {
+          "success": false,
+          "error": "\n\u001b[31m\u001b[49mHTTP Error\u001b[0m \u001b[37m\u001b[49mYour request was:\u001b[0m\n\n\u001b[36m\u001b[49mPOST /Accounts/AC294a9f6f5531aded6cd64d71e5d7968b/Messages.json\u001b[0m\n\n\u001b[37m\u001b[49mTwilio returned the following information:\u001b[0m\n\n\u001b[34m\u001b[49mUnable to create record: Twilio could not find a Channel with the specified From address\u001b[0m\n\n\u001b[37m\u001b[49mMore information may be available here:\u001b[0m\n\n\u001b[34m\u001b[49mhttps://www.twilio.com/docs/errors/63007\u001b[0m\n\n"
+        }
+      },
+      {
+        "type": "sms",
+        "result": {
+          "success": true,
+          "sid": "SM662091fca4f9701e0ae2016548cb489f",
+          "type": "sms"
+        }
+      }
+    ]
+  }
+]

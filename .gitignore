@@ -1,0 +1,27 @@
+# Credentials and Secrets
+.env
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# ML Models (Large files)
+*.h5
+
+# Project Specific Data
+project_data/uploads/
+stored_crops/
+last_scan.json
+
+# Soil Analysis Data
+stored_soil/
+soil_uploads/
+soil_results.json
+Soil Analysis Data
+stored_soil/
+soil_uploads/
+
+# OS Specific
+.DS_Store
+Thumbs.db
+groq_client.py

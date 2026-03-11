@@ -9,6 +9,7 @@ from services.groq_crop_analysis import analyze_crop_with_groq
 from services.weather_service import get_recent_weather
 from services.market_service import get_market_prices
 from services.groq_soil_analysis import analyze_soil_image, get_plant_recommendations, get_crop_recommendations
+from services.groq_agri_services import get_recovery_advice, calculate_roi, get_market_predictions, agri_chat
 
 load_dotenv()
 app = Flask(__name__)
@@ -159,14 +160,93 @@ def soil_crop_recs():
 
 
 # ========================
-# 6. HEALTH CHECK
+# 6. RECOVERY ADVISOR
+# ========================
+@app.route('/recovery-advice', methods=['POST'])
+def recovery_advice():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        result = get_recovery_advice(data)
+        if "error" in result:
+            return jsonify({"status": "Error", "error": result["error"]}), 500
+        return jsonify({"status": "Success", "data": result})
+    except Exception as e:
+        print(f"[AgriShield] Recovery Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ========================
+# 7. ROI CALCULATOR
+# ========================
+@app.route('/roi-calculate', methods=['POST'])
+def roi_calculate():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        investment = int(data.get('investment_amount', 50000))
+        land_size = float(data.get('land_size', 5))
+        crop_name = data.get('crop_name', 'General')
+        result = calculate_roi(investment, land_size, crop_name)
+        if "error" in result:
+            return jsonify({"status": "Error", "error": result["error"]}), 500
+        return jsonify({"status": "Success", "data": result})
+    except Exception as e:
+        print(f"[AgriShield] ROI Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ========================
+# 8. MARKET PREDICTIONS
+# ========================
+@app.route('/market-predictions', methods=['GET'])
+def market_predictions():
+    try:
+        result = get_market_predictions()
+        if "error" in result:
+            return jsonify({"status": "Error", "error": result["error"]}), 500
+        return jsonify({"status": "Success", "data": result["predictions"]})
+    except Exception as e:
+        print(f"[AgriShield] Market Prediction Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ========================
+# 9. AGRIBOT CHATBOT
+# ========================
+@app.route('/agri-chat', methods=['POST'])
+def agri_chat_route():
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({"error": "Message is required"}), 400
+        message = data['message']
+        language = data.get('language', 'hi')
+        history = data.get('history', [])
+        result = agri_chat(message, language, history)
+        if "error" in result:
+            return jsonify({"status": "Error", "error": result["error"]}), 500
+        return jsonify({"status": "Success", "data": result})
+    except Exception as e:
+        print(f"[AgriShield] Chat Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ========================
+# 10. HEALTH CHECK
 # ========================
 @app.route('/', methods=['GET'])
 def health_check():
     return jsonify({
         "status": "AgriShield AI Backend Running",
-        "version": "3.0",
-        "endpoints": ["/predict", "/last-scan", "/weather-advisory", "/mandi-prices", "/analyze-soil", "/soil-plant-recommendations", "/soil-crop-recommendations"]
+        "version": "4.0",
+        "endpoints": [
+            "/predict", "/last-scan", "/weather-advisory", "/mandi-prices",
+            "/analyze-soil", "/soil-plant-recommendations", "/soil-crop-recommendations",
+            "/recovery-advice", "/roi-calculate", "/market-predictions", "/agri-chat"
+        ]
     })
 
 

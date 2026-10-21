@@ -2,11 +2,15 @@
 AgriShield AI — Advanced Agriculture Services
 ================================================
 Recovery Advisor, ROI Calculator, Market Predictor, AgriBot Chatbot.
-All powered by Groq AI via groq_client.
+All powered by AI via groq_client (Groq + Gemini fallback).
 """
 
 import json
-from services.groq_client import call_groq, parse_json_response, extract_json_object, extract_json_array, call_groq_json_object, call_groq_json_array
+from services.groq_client import (
+    call_groq, parse_json_response, extract_json_object, extract_json_array,
+    call_groq_json_object, call_groq_json_array,
+    GROQ_API_KEY, GROQ_TEXT_MODEL, GROQ_FALLBACK_MODEL,
+)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -235,7 +239,7 @@ You are chatting with an Indian farmer. Help them with all agriculture needs."""
 
 def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
     """
-    Agriculture-only chatbot powered by Groq.
+    Agriculture-only chatbot powered by AI via Groq.
     language: 'hi' for Hindi, 'en' for English
     history: list of {"role": "user"/"assistant", "content": "..."} messages
     """
@@ -254,54 +258,56 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
 
     messages.append({"role": "user", "content": message})
 
-    # Use call_groq directly for chat (not JSON response)
-    result = call_groq(
-        prompt=None,  # We'll handle messages directly
-        temperature=0.6,
-        max_tokens=1024,
-        timeout=30,
-        tag="AgriBot",
-    )
+    # Import current state from groq_client
+    import services.groq_client as gc
 
-    # Actually, call_groq only supports single user message format
-    # We need to call the API directly for multi-turn chat
-    import os
+    if not gc.GROQ_API_KEY:
+        return {"error": "GROQ_API_KEY is not configured"}
+
+    # Try with primary model, fallback if it fails
+    import services.groq_client as gc
+
     import requests
-    from dotenv import load_dotenv
 
-    load_dotenv()
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        return {"error": "GROQ_API_KEY not configured"}
-
-    payload = {
-        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
-        "messages": messages,
-        "temperature": 0.6,
-        "max_tokens": 1024,
-    }
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
-
-    try:
+    def _try_chat(model_id):
+        payload = {
+            "model": model_id,
+            "messages": messages,
+            "temperature": 0.6,
+            "max_tokens": 1024,
+        }
+        headers = {
+            "Authorization": f"Bearer {gc.GROQ_API_KEY}",
+            "Content-Type": "application/json",
+        }
         resp = requests.post(
             "https://api.groq.com/openai/v1/chat/completions",
             headers=headers,
             json=payload,
             timeout=30,
         )
+        return resp
+
+    try:
+        print(f"[AgriShield][AgriBot] Calling Groq ({gc.GROQ_TEXT_MODEL})...")
+        resp = _try_chat(gc.GROQ_TEXT_MODEL)
+
+        # Auto-fallback
+        if resp.status_code != 200:
+            print(f"[AgriBot] Primary model error {resp.status_code}, trying fallback...")
+            resp = _try_chat(gc.GROQ_FALLBACK_MODEL)
 
         if resp.status_code != 200:
-            print(f"[AgriBot] API Error {resp.status_code}: {resp.text[:200]}")
-            return {"error": f"API Error: {resp.status_code}"}
+            error_text = resp.text[:300]
+            print(f"[AgriBot] Error {resp.status_code}: {error_text}")
+            return {"error": f"API Error: {resp.status_code} - {error_text}"}
 
         reply = resp.json()["choices"][0]["message"]["content"]
+        used_model = resp.json()["model"]
         return {
             "reply": reply,
             "language": language,
+            "model": used_model,
         }
 
     except requests.exceptions.Timeout:

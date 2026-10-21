@@ -1,5 +1,85 @@
 [
   {
+    "timestamp": "2026-03-13T16:23:24.678669",
+    "type": "manual",
+    "alert_level": "INFO",
+    "crop_name": "",
+    "health_score": "",
+    "phone": "+918989550196",
+    "ai_message": "\u0928\u092e\u0938\u094d\u0924\u0947 \u0915\u093f\u0938\u093e\u0928 \u092d\u093e\u0908! \u092e\u0948\u0902 AgriShield AI \u0939\u0942\u0902\u0964 \u092e\u0948\u0902\u0928\u0947 \u0938\u094b\u091a\u093e \u0915\u093f \u0906\u092a\u0915\u0947 \u0932\u093f\u090f \u0915\u092a\u093e\u0938 \u0915\u0940 \u0916\u0947\u0924\u0940 \u0915\u0947 \u092c\u093e\u0930\u0947 \u092e\u0947\u0902 \u0915\u0941\u091b \u091c\u093e\u0928\u0915\u093e\u0930\u0940 \u0938\u093e\u091d\u093e \u0915\u0930 \u0938\u0915\u0924\u0940 \u0939\u0942\u0902\u0964 \u0915\u092a\u093e\u0938 \u0915\u0940 \u0916\u0947\u0924\u0940 \u092e\u0947\u0902 \u092e\u0948\u0902 \u0906\u092a\u0915\u094b \u092c\u0924\u093e \u0938\u0915\u0924\u0940 \u0939\u0942\u0902 \u0915\u093f \u0928\u093f\u092f\u092e\u093f\u0924 \u0938\u093f\u0902\u091a\u093e\u0908 \u0914\u0930 \u0916\u093e\u0926 \u0915\u093e \u0909\u092a\u092f\u094b\u0917 \u0915\u0930\u0928\u093e \u092c\u0939\u0941\u0924",
+    "results": [
+      {
+        "success": true,
+        "sid": "CA500d0708f925e9a95256a4b0d47cd799",
+        "type": "voice_call"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-13T15:16:55.884080",
+    "type": "manual",
+    "alert_level": "INFO",
+    "crop_name": "",
+    "health_score": "",
+    "phone": "+918989550196",
+    "ai_message": "\u0928\u092e\u0938\u094d\u0924\u0947 \u0915\u093f\u0938\u093e\u0928 \u092d\u093e\u0908! \u0906\u092a\u0915\u093e \u0916\u0947\u0924 \u092e\u0947\u0902 \u0917\u0947\u0939\u0942\u0902 \u0915\u0940 \u092b\u0938\u0932 \u0905\u091a\u094d\u091b\u0940 \u0939\u094b \u0930\u0939\u0940 \u0939\u094b\u0917\u0940\u0964 \u0907\u0938 \u0938\u092e\u092f \u0917\u0947\u0939\u0942\u0902 \u0915\u0940 \u092b\u0938\u0932 \u092e\u0947\u0902 \u092a\u093e\u0928\u0940 \u0915\u0940 \u0906\u0935\u0936\u094d\u092f\u0915\u0924\u093e \u0939\u0948, \u0907\u0938\u0932\u093f\u090f \u0927\u094d\u092f\u093e\u0928 \u0926\u0947\u0902 \u0915\u093f \u0916\u0947\u0924 \u092e\u0947\u0902 \u092a\u093e\u0928\u0940 \u0915\u0940 \u0915\u092e\u0940 \u0928 \u0939\u094b\u0964 \u0907\u0938\u0915\u0947 \u0905\u0932\u093e\u0935\u093e, \u0917\u0947\u0939\u0942\u0902 \u0915\u0940 \u092b\u0938\u0932 \u092e\u0947\u0902 \u091c\u0902\u0917 \u0914\u0930 \u0915\u0940\u091f\u094b\u0902 \u0938\u0947 \u092c\u091a",
+    "results": [
+      {
+        "success": true,
+        "sid": "CAdabe5f91c790541b45a5fa4e10811da2",
+        "type": "voice_call"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-13T15:13:11.004831",
+    "type": "manual",
+    "alert_level": "INFO",
+    "crop_name": "",
+    "health_score": "",
+    "phone": "+918989550196",
+    "ai_message": "\u0928\u092e\u0938\u094d\u0924\u0947 \u0915\u093f\u0938\u093e\u0928 \u092d\u093e\u0908! \u0906\u092a\u0915\u093e \u0916\u0947\u0924\u094b\u0902 \u092e\u0947\u0902 \u092e\u094c\u0938\u092e \u0915\u0948\u0938\u093e \u091a\u0932 \u0930\u0939\u093e \u0939\u0948? \u0917\u0947\u0939\u0942\u0902 \u0915\u0940 \u092b\u0938\u0932 \u0915\u0947 \u0932\u093f\u090f \u092f\u0939 \u0938\u092e\u092f \u092c\u0939\u0941\u0924 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0939\u0948, \u0907\u0938\u0932\u093f\u090f \u092e\u0948\u0902 \u0906\u092a\u0915\u094b \u0938\u0932\u093e\u0939 \u0926\u0947\u0928\u093e \u091a\u093e\u0939\u0924\u093e \u0939\u0942\u0902\u0964 \u0905\u092d\u0940 \u0917\u0947\u0939\u0942\u0902 \u0915\u0940 \u092b\u0938\u0932 \u092e\u0947\u0902 \u092a\u093e\u0928\u0940 \u0915\u0940 \u0906\u0935\u0936\u094d\u092f\u0915\u0924\u093e \u0939\u0948, \u0907\u0938\u0932\u093f\u090f \u0906\u092a \u0938\u093f\u0902\u091a\u093e\u0908 \u0915\u093e \u0927\u094d",
+    "results": [
+      {
+        "success": true,
+        "sid": "CAa16032634fabf0692b0cbb7710325b16",
+        "type": "voice_call"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-13T15:06:10.052726",
+    "type": "manual",
+    "alert_level": "INFO",
+    "crop_name": "",
+    "health_score": "",
+    "phone": "+918989550196",
+    "ai_message": "Hello farmer, this is AgriShield AI, I hope you're doing well. As we are in the wheat sowing season, I wanted to remind you to use a seed rate of 100-120 kg per hectare for optimal yield. Also, make s",
+    "results": [
+      {
+        "success": true,
+        "sid": "CAebdea859595e3b9f83459e5e019c6414",
+        "type": "voice_call"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-13T14:40:30.786626",
+    "type": "manual",
+    "alert_level": "INFO",
+    "crop_name": "",
+    "health_score": "",
+    "phone": "+918989550196",
+    "ai_message": "Hello farmer, this is AgriShield AI, how are you? As we are in March, I wanted to remind you that it's a crucial time for wheat crop care. Make sure to irrigate your wheat fields regularly, but avoid ",
+    "results": [
+      {
+        "success": true,
+        "sid": "CAa2e28cf0da6e5c2c27c447cfe4c48243",
+        "type": "voice_call"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-03-06T21:17:14.299454",
     "type": "soil_analysis",
     "alert_level": "INFO",

@@ -24,4 +24,3 @@ soil_uploads/
 # OS Specific
 .DS_Store
 Thumbs.db
-groq_client.py

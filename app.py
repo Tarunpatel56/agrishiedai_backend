@@ -28,13 +28,26 @@ from services.groq_soil_analysis import analyze_soil_image, get_plant_recommenda
 from services.groq_agri_services import get_recovery_advice, calculate_roi, get_market_predictions, agri_chat
 from services.groq_client import call_groq, GROQ_TEXT_MODEL, GROQ_VISION_MODEL, GROQ_FALLBACK_MODEL
 
-# ── All Twilio imports from agrishield_twilio ──
-from agrishield_twilio import (
-    send_sms, make_voice_call,
-    format_crop_alert, format_voice_alert,
-    generate_welcome_twiml, handle_voice_input, generate_alert_call_twiml,
-    FARMER_PHONE_NUMBER,
-)
+# ── Twilio imports with safe fallbacks (optional for cloud deployment) ──
+try:
+    from agrishield_twilio import (
+        send_sms, make_voice_call,
+        format_crop_alert, format_voice_alert,
+        generate_welcome_twiml, handle_voice_input, generate_alert_call_twiml,
+        FARMER_PHONE_NUMBER,
+    )
+    TWILIO_AVAILABLE = True
+except Exception as _t_err:
+    print(f"[AgriShield] Twilio optional/disabled: {_t_err}")
+    TWILIO_AVAILABLE = False
+    FARMER_PHONE_NUMBER = os.getenv("FARMER_PHONE_NUMBER", "+918989550196")
+    def send_sms(*a, **kw): return {"success": False, "error": "Twilio not configured"}
+    def make_voice_call(*a, **kw): return {"success": False, "error": "Twilio not configured"}
+    def format_crop_alert(d): return f"Alert: {d.get('crop_name', 'Crop')}"
+    def format_voice_alert(d): return f"Fasal update: {d.get('crop_name', '')}"
+    def generate_welcome_twiml(): return "<Response><Say>AgriShield</Say></Response>"
+    def handle_voice_input(*a, **kw): return "<Response><Say>OK</Say></Response>"
+    def generate_alert_call_twiml(*a, **kw): return "<Response><Say>Alert</Say></Response>"
 
 from datetime import datetime
 

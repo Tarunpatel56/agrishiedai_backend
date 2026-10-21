@@ -24,12 +24,19 @@ _client = None
 
 
 def _get_client():
-    """Lazy-initialize Twilio client."""
+    """Lazy-initialize Twilio client safely."""
     global _client
     if _client is None:
-        from twilio.rest import Client
-        _client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-        print("[Twilio] ✅ Twilio client initialized")
+        if not TWILIO_ACCOUNT_SID or not TWILIO_AUTH_TOKEN:
+            print("[Twilio] ⚠️ Twilio credentials missing (notifications disabled)")
+            return None
+        try:
+            from twilio.rest import Client
+            _client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+            print("[Twilio] ✅ Twilio client initialized")
+        except Exception as e:
+            print(f"[Twilio] ⚠️ Could not initialize Twilio client: {e}")
+            return None
     return _client
 
 
@@ -40,6 +47,8 @@ def send_sms(to: str, body: str):
     """Send SMS via Twilio."""
     try:
         client = _get_client()
+        if not client:
+            return {"success": False, "error": "Twilio not configured on server", "type": "sms"}
         message = client.messages.create(
             to=to,
             from_=TWILIO_PHONE_NUMBER,
@@ -59,6 +68,8 @@ def send_whatsapp(to: str, body: str):
     """Send WhatsApp message via Twilio."""
     try:
         client = _get_client()
+        if not client:
+            return {"success": False, "error": "Twilio not configured on server", "type": "whatsapp"}
         message = client.messages.create(
             to=f"whatsapp:{to}",
             from_=f"whatsapp:{TWILIO_PHONE_NUMBER}",
@@ -83,6 +94,8 @@ def make_voice_call(to: str, webhook_url: str = None, twiml_text: str = None):
     """
     try:
         client = _get_client()
+        if not client:
+            return {"success": False, "error": "Twilio not configured on server", "type": "voice_call"}
         call_params = {
             "to": to,
             "from_": TWILIO_PHONE_NUMBER,

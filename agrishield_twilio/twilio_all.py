@@ -85,12 +85,13 @@ def send_whatsapp(to: str, body: str):
 # ══════════════════════════════════════════════════════════════
 # 3. VOICE CALL
 # ══════════════════════════════════════════════════════════════
-def make_voice_call(to: str, webhook_url: str = None, twiml_text: str = None):
+def make_voice_call(to: str, webhook_url: str = None, twiml_text: str = None, language: str = 'hi-IN'):
     """
     Initiate a voice call via Twilio.
 
     - webhook_url: Public URL for IVR (Groq AI interaction) — needs ngrok
     - twiml_text: Static text to speak on the call (works without ngrok)
+    - language: Speech language ('hi-IN' for Hindi, 'en-IN' for English)
     """
     try:
         client = _get_client()
@@ -101,21 +102,26 @@ def make_voice_call(to: str, webhook_url: str = None, twiml_text: str = None):
             "from_": TWILIO_PHONE_NUMBER,
         }
 
+        voice_lang = 'en-IN' if 'en' in str(language).lower() else 'hi-IN'
+
         if webhook_url:
             call_params["url"] = webhook_url
             print(f"[Twilio] 📞 Using webhook URL: {webhook_url}")
         elif twiml_text:
             call_params["twiml"] = (
                 f"<Response>"
-                f"<Say language='hi-IN' voice='Polly.Aditi'>{twiml_text}</Say>"
+                f"<Say language='{voice_lang}' voice='Polly.Aditi'>{twiml_text}</Say>"
                 f"</Response>"
             )
         else:
+            if voice_lang == 'en-IN':
+                default_msg = "Hello farmer! I am AgriShield AI. I am here to help care for your crops. Thank you!"
+            else:
+                default_msg = "नमस्ते किसान भाई! मैं AgriShield AI हूं। आपकी फसलों की देखभाल के लिए मैं यहां हूं। धन्यवाद!"
             call_params["twiml"] = (
-                "<Response>"
-                "<Say language='hi-IN' voice='Polly.Aditi'>"
-                "नमस्ते किसान भाई! मैं AgriShield AI हूं। आपकी फसलों की देखभाल के लिए मैं यहां हूं। धन्यवाद!"
-                "</Say></Response>"
+                f"<Response>"
+                f"<Say language='{voice_lang}' voice='Polly.Aditi'>{default_msg}</Say>"
+                f"</Response>"
             )
 
         call = client.calls.create(**call_params)
@@ -189,41 +195,50 @@ def format_voice_alert(scan_data: dict) -> str:
 
 
 # ══════════════════════════════════════════════════════════════
-# 5. VOICE IVR — Groq AI Agriculture Answers on Call
+# 5. VOICE IVR — Groq AI Agriculture Answers on Call (Bilingual)
 # ══════════════════════════════════════════════════════════════
-# (These need a public webhook URL via ngrok to work)
 
-AGRI_VOICE_PROMPT = (
+AGRI_VOICE_PROMPT_HI = (
     'You are AgriShield AI — a FEMALE farming assistant that ONLY discusses agriculture topics.\n\n'
     'IMPORTANT: You are a FEMALE assistant. Always use FEMININE Hindi verb forms:\n'
     '- "मैं बता सकती हूं" (NOT "बता सकता हूं")\n'
-    '- "मैं सहायता कर सकती हूं" (NOT "कर सकता हूं")\n'
-    '- "मैंने देखा" (NOT "मैंने देखा") — use feminine endings\n\n'
+    '- "मैं सहायता कर सकती हूं" (NOT "कर सकता हूं")\n\n'
     'You MUST:\n'
-    '- Only answer questions about farming, crops, soil, weather, irrigation, fertilizers, pesticides, harvest\n'
+    '- Only answer questions about farming, crops, soil, weather, irrigation, fertilizers, pesticides, pests, harvest\n'
     '- Respond in HINDI (Devanagari script) ONLY with FEMININE verb forms\n'
-    '- Keep responses SHORT (under 3 sentences for voice call)\n'
-    '- Be warm, polite, and caring — like a helpful sister/friend\n'
-    '- Use simple Hindi that every farmer can understand\n'
-    '- Address farmer as "किसान भाई" or "भैया"\n\n'
-    'You MUST NOT:\n'
-    '- Discuss any non-agricultural topics\n'
-    '- If asked about anything else, politely say: "माफ करें भैया, मैं सिर्फ खेती-बाड़ी से जुड़े सवालों में आपकी सहायता कर सकती हूं।"\n\n'
+    '- Keep responses SHORT (under 3 sentences for telephone voice call)\n'
+    '- Be warm, polite, and caring — address farmer as "किसान भाई" or "भैया"\n\n'
     'User said: "{user_speech}"\n\n'
-    'Respond in 2-3 short HINDI sentences with FEMININE verb forms:'
+    'Respond in 2-3 short HINDI sentences:'
+)
+
+AGRI_VOICE_PROMPT_EN = (
+    'You are AgriShield AI — a friendly and helpful agricultural expert assistant calling an Indian farmer.\n\n'
+    'You MUST:\n'
+    '- Only answer questions about agriculture, crops, soil, pests, diseases, weather, fertilizers, and farming\n'
+    '- Respond in CLEAR, SIMPLE ENGLISH that is very easy to understand over a phone call\n'
+    '- Keep responses SHORT (under 3 sentences for telephone voice call)\n'
+    '- Be respectful and polite, address the caller as "farmer" or "friend"\n\n'
+    'User said: "{user_speech}"\n\n'
+    'Respond in 2-3 short ENGLISH sentences:'
 )
 
 
-def _call_groq_for_voice(speech_text: str) -> str:
-    """Call Groq API for voice response. Returns AI text or fallback."""
-    # Add the backend services path so groq_client can be imported
-    backend_path = os.path.join(os.path.dirname(__file__), '..', 'agrishield_backend', 'agrishield_backend')
+def _call_groq_for_voice(speech_text: str, lang: str = 'hi') -> str:
+    """Call Groq API for voice response in selected language (hi or en)."""
+    backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if backend_path not in sys.path:
-        sys.path.insert(0, os.path.abspath(backend_path))
+        sys.path.insert(0, backend_path)
 
     try:
         from services.groq_client import call_groq
-        prompt = AGRI_VOICE_PROMPT.format(user_speech=speech_text)
+        if lang == 'en':
+            prompt = AGRI_VOICE_PROMPT_EN.format(user_speech=speech_text)
+            fallback = "Hello farmer. Please check your crops regularly and ensure proper irrigation. Happy farming!"
+        else:
+            prompt = AGRI_VOICE_PROMPT_HI.format(user_speech=speech_text)
+            fallback = "नमस्ते किसान भाई। कृपया अपनी फसलों की नियमित निगरानी करें और संतुलित खाद का प्रयोग करें।"
+
         result = call_groq(
             prompt=prompt,
             temperature=0.5,
@@ -232,71 +247,182 @@ def _call_groq_for_voice(speech_text: str) -> str:
             tag="VoiceAI"
         )
         if result.get("success"):
-            return result.get("raw", "Sorry, there is a problem responding right now.")
+            return result.get("raw", fallback).strip().strip('"\'')
         else:
-            return "Sorry, there is a problem responding right now. Please try again later."
+            return fallback
     except Exception as e:
         print(f"[Twilio] ❌ Groq voice error: {e}")
-        return "Sorry, there is a problem responding right now. Please try again later."
+        return "Sorry, I am having trouble responding right now. Please call again later." if lang == 'en' else "माफ करें भैया, अभी उत्तर देने में समस्या हो रही है। कृपया कुछ समय बाद प्रयास करें।"
 
 
-def generate_welcome_twiml() -> str:
-    """Generate TwiML for incoming call welcome + gather speech input."""
+def generate_language_selection_twiml() -> str:
+    """
+    Generate TwiML for incoming call: Plays bilingual language selection prompt.
+    Press 1 for Hindi, Press 2 for English.
+    """
     from twilio.twiml.voice_response import VoiceResponse, Gather
 
     response = VoiceResponse()
     gather = Gather(
-        input='speech',
-        action='/voice-respond',
+        input='dtmf',
+        num_digits=1,
+        action='/voice-lang-select',
         method='POST',
-        language='hi-IN',
-        speech_timeout='auto',
-        timeout=10
+        timeout=8
     )
     gather.say(
-        'नमस्ते किसान भाई! मैं AgriShield AI हूं। मैं आपकी खेती से जुड़ी किसी भी समस्या में सहायता कर सकती हूं। कृपया अपना सवाल बोलिए।',
+        'एग्रीशील्ड एआई में आपका स्वागत है। हिंदी के लिए 1 दबाएं।',
         language='hi-IN',
+        voice='Polly.Aditi'
+    )
+    gather.say(
+        'Welcome to AgriShield AI. For English, press 2.',
+        language='en-IN',
         voice='Polly.Aditi'
     )
     response.append(gather)
-    response.say(
-        'धन्यवाद किसान भाई! आपका दिन शुभ हो। AgriShield AI आपकी सेवा में हमेशा तैयार है। जय किसान!',
-        language='hi-IN',
-        voice='Polly.Aditi'
-    )
+
+    # Fallback if no key was pressed within timeout -> default to Hindi
+    response.say('कोई इनपुट नहीं मिला। हिंदी में जारी रखा जा रहा है।', language='hi-IN', voice='Polly.Aditi')
+    response.redirect('/voice-lang-select?Digits=1', method='POST')
     return str(response)
 
 
-def handle_voice_input(speech_text: str) -> str:
-    """Process farmer's speech and return Groq AI response as TwiML."""
+def handle_language_selection(digits: str) -> str:
+    """
+    Handles user's DTMF selection:
+    1 -> Hindi welcome & gather
+    2 -> English welcome & gather
+    Other -> prompt error and re-gather
+    """
     from twilio.twiml.voice_response import VoiceResponse, Gather
 
-    ai_response = _call_groq_for_voice(speech_text)
+    digits = str(digits).strip()
+    response = VoiceResponse()
+
+    if digits == '1':
+        # Selected: Hindi
+        gather = Gather(
+            input='speech',
+            action='/voice-respond?lang=hi',
+            method='POST',
+            language='hi-IN',
+            speech_timeout='auto',
+            timeout=10
+        )
+        gather.say(
+            'नमस्ते किसान भाई! मैं AgriShield AI हूं। मैं आपकी खेती से जुड़ी किसी भी समस्या में सहायता कर सकती हूं। कृपया अपना सवाल बोलिए।',
+            language='hi-IN',
+            voice='Polly.Aditi'
+        )
+        response.append(gather)
+        response.say(
+            'धन्यवाद किसान भाई! आपका दिन शुभ हो। जय किसान!',
+            language='hi-IN',
+            voice='Polly.Aditi'
+        )
+        return str(response)
+
+    elif digits == '2':
+        # Selected: English
+        gather = Gather(
+            input='speech',
+            action='/voice-respond?lang=en',
+            method='POST',
+            language='en-IN',
+            speech_timeout='auto',
+            timeout=10
+        )
+        gather.say(
+            'Hello farmer! I am AgriShield AI. I am here to help you with crop diseases, fertilizers, weather, and farming advice. Please ask your question now.',
+            language='en-IN',
+            voice='Polly.Aditi'
+        )
+        response.append(gather)
+        response.say(
+            'Thank you farmer! AgriShield AI wishes you a successful harvest. Happy farming!',
+            language='en-IN',
+            voice='Polly.Aditi'
+        )
+        return str(response)
+
+    else:
+        # Invalid selection: Re-prompt
+        gather = Gather(
+            input='dtmf',
+            num_digits=1,
+            action='/voice-lang-select',
+            method='POST',
+            timeout=7
+        )
+        gather.say(
+            'अमान्य विकल्प। हिंदी के लिए 1 दबाएं।',
+            language='hi-IN',
+            voice='Polly.Aditi'
+        )
+        gather.say(
+            'Invalid option. For English, press 2.',
+            language='en-IN',
+            voice='Polly.Aditi'
+        )
+        response.append(gather)
+        # Final fallback to Hindi
+        response.redirect('/voice-lang-select?Digits=1', method='POST')
+        return str(response)
+
+
+def generate_welcome_twiml() -> str:
+    """Legacy helper: points directly to language selection."""
+    return generate_language_selection_twiml()
+
+
+def handle_voice_input(speech_text: str, lang: str = 'hi') -> str:
+    """Process farmer's speech in selected language and return Groq AI response as TwiML."""
+    from twilio.twiml.voice_response import VoiceResponse, Gather
+
+    lang = 'en' if str(lang).lower().startswith('en') else 'hi'
+    voice_lang = 'en-IN' if lang == 'en' else 'hi-IN'
+
+    ai_response = _call_groq_for_voice(speech_text, lang=lang)
 
     response = VoiceResponse()
-    response.say(ai_response, language='hi-IN', voice='Polly.Aditi')
+    response.say(ai_response, language=voice_lang, voice='Polly.Aditi')
 
-    # Allow follow-up question
+    # Allow follow-up question in the same language
     gather = Gather(
         input='speech',
-        action='/voice-respond',
+        action=f'/voice-respond?lang={lang}',
         method='POST',
-        language='hi-IN',
+        language=voice_lang,
         speech_timeout='auto',
-        timeout=10
+        timeout=9
     )
-    gather.say(
-        'भैया, क्या आप कुछ और पूछना चाहते हैं? मैं आपकी सहायता के लिए यहां हूं।',
-        language='hi-IN',
-        voice='Polly.Aditi'
-    )
-    response.append(gather)
 
-    response.say(
-        'धन्यवाद किसान भाई! आपका दिन शुभ हो। AgriShield AI आपकी सेवा में हमेशा तैयार है। जय किसान!',
-        language='hi-IN',
-        voice='Polly.Aditi'
-    )
+    if lang == 'en':
+        gather.say(
+            'Do you have any other questions about your crops or farm? Please speak now.',
+            language='en-IN',
+            voice='Polly.Aditi'
+        )
+        response.append(gather)
+        response.say(
+            'Thank you farmer! AgriShield AI is always here for your crops. Have a wonderful day!',
+            language='en-IN',
+            voice='Polly.Aditi'
+        )
+    else:
+        gather.say(
+            'भैया, क्या आप कुछ और पूछना चाहते हैं? मैं आपकी सहायता के लिए यहां हूं।',
+            language='hi-IN',
+            voice='Polly.Aditi'
+        )
+        response.append(gather)
+        response.say(
+            'धन्यवाद किसान भाई! आपका दिन शुभ हो। AgriShield AI आपकी सेवा में हमेशा तैयार है। जय किसान!',
+            language='hi-IN',
+            voice='Polly.Aditi'
+        )
+
     return str(response)
 
 

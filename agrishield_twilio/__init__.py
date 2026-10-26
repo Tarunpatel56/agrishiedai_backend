@@ -1,7 +1,8 @@
 """
 AgriShield Twilio Module
 ========================
-All Twilio-related code: SMS, WhatsApp, Voice Calls, Voice IVR with Groq AI.
+All Twilio-related code: SMS, WhatsApp, Voice Calls, Voice IVR with Groq AI,
+and Bilingual Language Selection (Hindi/English).
 """
 
 from agrishield_twilio.twilio_all import (
@@ -20,7 +21,9 @@ from agrishield_twilio.twilio_all import (
     format_crop_alert,
     format_soil_alert,
     format_voice_alert,
-    # Voice IVR (Groq AI)
+    # Voice IVR (Groq AI) & Bilingual Language Selection
+    generate_language_selection_twiml,
+    handle_language_selection,
     generate_welcome_twiml,
     handle_voice_input,
     generate_alert_call_twiml,

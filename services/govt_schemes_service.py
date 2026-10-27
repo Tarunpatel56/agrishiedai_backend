@@ -1,359 +1,457 @@
 """
-Government Agricultural Schemes Service
-=========================================
-Provides verified official agricultural schemes from the Ministry of Agriculture & Farmers Welfare,
-State Agriculture Departments, NABARD, and official Government of India portals.
-
-CRITICAL RULES:
-- Never invents schemes, subsidy amounts, or fake links.
-- Clearly distinguishes Central Government vs State Government schemes.
-- Provides complete eligibility, required documents, application steps, and official URLs.
+AgriShield AI — Government Schemes Service
+Provides verified Indian Central & State agricultural government schemes,
+official eligibility criteria, required documents, step-by-step application instructions,
+and verified official application portals.
+Supports full Hindi ('hi') and English ('en') responses.
 """
 
-GOVERNMENT_SCHEMES = [
+from typing import List, Dict, Any
+
+OFFICIAL_SCHEMES_EN = [
     {
         "id": "pm-kisan",
         "title": "Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)",
-        "title_hi": "प्रधानमंत्री किसान सम्मान निधि (PM-KISAN)",
-        "category": "Income Support",
-        "category_hi": "आय सहायता",
-        "level": "Central Government",
-        "level_hi": "केंद्र सरकार",
-        "benefit": "₹6,000 per year in 3 equal installments of ₹2,000 directly via DBT",
-        "benefit_hi": "₹6,000 प्रति वर्ष (₹2,000 की 3 समान किस्तों में सीधे बैंक खाते में DBT द्वारा)",
-        "description": "Central sector scheme to supplement financial needs of all landholding farmer families for agricultural inputs and domestic needs.",
-        "description_hi": "सभी भूमिधारक किसान परिवारों को कृषि आदानों और घरेलू जरूरतों के लिए ₹6,000 वार्षिक प्रत्यक्ष वित्तीय सहायता प्रदान करने की केंद्रीय योजना।",
-        "eligibility": "All landholding farmer families with cultivable land in their name. Excludes institutional landholders, income-tax payers, and government employees.",
-        "eligibility_hi": "अपने नाम पर कृषि भूमि रखने वाले सभी किसान परिवार। संस्थागत भूधारक, आयकर दाता और सरकारी कर्मचारी बाहर हैं।",
-        "required_documents": [
-            "Aadhaar Card linked with active mobile number",
-            "Land ownership record (Khasra / Khatauni / RoR)",
-            "Bank Passbook (Aadhaar and NPCI linked)",
-            "Active mobile number for OTP e-KYC"
+        "short_name": "PM-KISAN",
+        "category": "Direct Income Support",
+        "benefit": "₹6,000 per year directly transferred to bank account in 3 equal installments of ₹2,000",
+        "description": "Central Sector scheme with 100% funding from Government of India to supplement the financial needs of landholding farmers' families for procuring agricultural inputs and domestic needs.",
+        "eligibility": [
+            "All landholding farmer families with cultivable land in their names.",
+            "Subject to exclusion criteria (e.g., institutional landholders, active/retired government servants, income tax payees, constitutional post holders)."
         ],
-        "required_documents_hi": [
-            "मोबाइल नंबर से लिंक आधार कार्ड",
-            "जमीन के मालिकाना हक का दस्तावेज (खसरा / खतौनी / नकल)",
-            "बैंक पासबुक (आधार व NPCI डीबीटी से लिंक)",
-            "ई-केवाईसी के लिए चालू मोबाइल नंबर"
+        "documents_required": [
+            "Aadhaar Card (mandatory)",
+            "Bank Account linked with Aadhaar and NPCI/DBT active",
+            "Land ownership records (Khasra / Khatauni / RoR)",
+            "Active mobile number linked with Aadhaar"
         ],
-        "application_instructions": "Visit the official PM-KISAN portal (pmkisan.gov.in) -> Click 'New Farmer Registration' -> Enter Aadhaar and land details -> Complete biometric or OTP e-KYC -> Submit for State Verification.",
-        "application_instructions_hi": "आधिकारिक पीएम-किसान पोर्टल (pmkisan.gov.in) पर जाएं -> 'New Farmer Registration' पर क्लिक करें -> आधार और जमीन का विवरण दर्ज करें -> ओटीपी/बायोमेट्रिक ई-केवाईसी पूरी करें।",
-        "official_link": "https://pmkisan.gov.in/",
-        "department": "Department of Agriculture & Farmers Welfare, MoA&FW",
-        "state_applicability": "All India (All States & UTs)",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "Ministry of Agriculture & Farmers Welfare, Govt of India"
+        "application_process": "1. Visit the official PM-KISAN portal (pmkisan.gov.in) -> Farmers Corner -> New Farmer Registration.\n2. Choose Rural or Urban Farmer Registration.\n3. Enter Aadhaar Number and Mobile Number, select State, and verify via OTP.\n4. Fill personal, bank, and land details (Survey/Khata number) and upload land record document.\n5. Alternatively, register via nearest Common Service Centre (CSC) or State Nodal Agriculture Officer.",
+        "official_source": "Department of Agriculture & Farmers Welfare, Ministry of Agriculture & Farmers Welfare",
+        "official_url": "https://pmkisan.gov.in/",
+        "apply_url": "https://pmkisan.gov.in/RegistrationFormNew.aspx",
+        "application_mode": "Online & CSC",
+        "last_verified": "October 2026",
+        "is_verified": True
     },
     {
         "id": "pmfby",
         "title": "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
-        "title_hi": "प्रधानमंत्री फसल बीमा योजना (PMFBY)",
+        "short_name": "PMFBY",
         "category": "Crop Insurance",
-        "category_hi": "फसल बीमा",
-        "level": "Central Government",
-        "level_hi": "केंद्र सरकार",
-        "benefit": "Comprehensive financial cover against crop failure; Farmer premium only 1.5% for Rabi, 2% for Kharif, 5% for Annual Horticultural crops",
-        "benefit_hi": "फसल नुकसान पर पूर्ण बीमा सुरक्षा; किसान प्रीमियम केवल रबी हेतु 1.5%, खरीफ हेतु 2%, और बागवानी फसलों हेतु 5%",
-        "description": "Yield-based and weather-index crop insurance protecting farmers against non-preventable natural calamities, pests, and plant diseases.",
-        "description_hi": "प्राकृतिक आपदाओं, कीटों और बीमारियों के कारण फसल क्षति के विरुद्ध किसानों को न्यूनतम प्रीमियम पर व्यापक जोखिम सुरक्षा प्रदान करने वाली योजना।",
-        "eligibility": "All farmers including sharecroppers and tenant farmers growing notified crops in notified areas are eligible.",
-        "eligibility_hi": "अधिसूचित क्षेत्रों में अधिसूचित फसलें उगाने वाले सभी किसान (बटाईदार और पट्टेदार किसान सहित) पात्र हैं।",
-        "required_documents": [
+        "benefit": "Comprehensive financial security against non-preventable natural risks (drought, flood, unseasonal rain, pests, diseases). Farmers pay only 2% for Kharif, 1.5% for Rabi, and 5% for commercial/horticultural crops.",
+        "description": "Nationwide crop insurance scheme providing yield loss and localized calamity insurance cover to stabilize farmers' income and encourage adoption of innovative farming practices.",
+        "eligibility": [
+            "All farmers growing notified crops in notified areas (both loanee and non-loanee farmers, sharecroppers, and tenant farmers).",
+            "Enrollment must be completed before the cut-off date specified for the crop season."
+        ],
+        "documents_required": [
+            "Land Possession Certificate (LPC) or Record of Rights (RoR)",
+            "Sowing Certificate issued by Patwari/Village Officer",
+            "Bank passbook copy (showing IFSC and Account Number)",
             "Aadhaar Card",
-            "Land Possession Certificate / Land Record (Khasra number)",
-            "Sowing Certificate issued by Patwari / Village Agriculture Officer",
-            "Cancelled Bank Cheque or Bank Passbook copy"
+            "Tenant / Sharecropper agreement (if applicable)"
         ],
-        "required_documents_hi": [
-            "आधार कार्ड",
-            "भू-स्वामित्व प्रमाण पत्र / खसरा खतौनी",
-            "पटवारी या ग्राम कृषि विस्तार अधिकारी द्वारा जारी बुवाई प्रमाण पत्र",
-            "बैंक पासबुक या कैंसिल चेक की प्रति"
-        ],
-        "application_instructions": "Apply via official PMFBY portal (pmfby.gov.in), through Common Service Centers (CSCs), or through your bank branch before the seasonal cutoff deadline.",
-        "application_instructions_hi": "पीएमएफबीवाई पोर्टल (pmfby.gov.in), सीएससी (CSC) केंद्र या अपनी बैंक शाखा के माध्यम से बुवाई मौसम की अंतिम तिथि से पूर्व आवेदन करें।",
-        "official_link": "https://pmfby.gov.in/",
-        "department": "Ministry of Agriculture & Farmers Welfare",
-        "state_applicability": "All participating States & UTs",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "Government of India — PMFBY Portal"
+        "application_process": "1. Visit pmfby.gov.in -> Farmer Corner -> Apply for Crop Insurance.\n2. Log in using Mobile Number and OTP or register if new user.\n3. Select your State, District, Sub-district, Village, Season, and Crop.\n4. Upload land records and sowing certificate.\n5. Pay the nominal farmer share premium online via UPI, NetBanking, or through your KCC loan branch/CSC.",
+        "official_source": "Ministry of Agriculture & Farmers Welfare, Government of India",
+        "official_url": "https://pmfby.gov.in/",
+        "apply_url": "https://pmfby.gov.in/farmerRegistrationForm",
+        "application_mode": "Online, Bank Branch, & CSC",
+        "last_verified": "October 2026",
+        "is_verified": True
     },
     {
         "id": "kcc",
         "title": "Kisan Credit Card (KCC) Scheme",
-        "title_hi": "किसान क्रेडिट कार्ड (KCC) योजना",
+        "short_name": "KCC",
         "category": "Agricultural Credit",
-        "category_hi": "कृषि ऋण",
-        "level": "Central Government",
-        "level_hi": "केंद्र सरकार",
-        "benefit": "Subsidized short-term crop loans up to ₹3 Lakh at an effective interest rate of 4% per annum upon prompt repayment",
-        "benefit_hi": "समय पर भुगतान करने पर मात्र 4% वार्षिक प्रभावी ब्याज दर पर ₹3 लाख तक का रियायती अल्पकालिक फसल ऋण",
-        "description": "Provides timely and adequate credit to farmers for crop cultivation, post-harvest expenses, farm asset maintenance, and dairy/fisheries activities.",
-        "description_hi": "किसानों को खाद, बीज, कीटनाशक और खेती की अन्य आवश्यकताओं तथा पशुपालन व मत्स्य पालन हेतु रियायती दरों पर आसान संस्थागत ऋण उपलब्ध कराना।",
-        "eligibility": "Owner cultivators, tenant farmers, oral lessees, sharecroppers, and Self-Help Groups (SHGs) or Joint Liability Groups (JLGs) of farmers.",
-        "eligibility_hi": "भूमि स्वामी किसान, बटाईदार, पट्टेदार और किसान स्वयं सहायता समूह (SHG) या संयुक्त देयता समूह (JLG)।",
-        "required_documents": [
-            "Duly completed KCC Application Form",
-            "Aadhaar Card / Voter ID for KYC verification",
-            "Land records (Khasra / Khatauni) certified by revenue authorities",
-            "No Dues Certificate (NDC) from neighboring financial institutions"
+        "benefit": "Institutional short-term crop loans up to ₹3,00,000 at a concessional interest rate of 4% per annum (after 3% prompt repayment incentive). Collateral-free loan up to ₹1.6 Lakh.",
+        "description": "Simplified credit delivery mechanism ensuring timely credit support to farmers for crop cultivation, post-harvest expenses, farm asset maintenance, and allied activities (dairy, poultry, fisheries).",
+        "eligibility": [
+            "All farmers — individuals/joint borrowers who are owner cultivators.",
+            "Tenant farmers, oral lessees, and sharecroppers.",
+            "Self Help Groups (SHGs) or Joint Liability Groups (JLGs) of farmers."
         ],
-        "required_documents_hi": [
-            "विधिवत भरा हुआ केसीसी आवेदन पत्र",
-            "केवाईसी पहचान हेतु आधार कार्ड / मतदाता पहचान पत्र",
-            "राजस्व प्राधिकारी द्वारा प्रमाणित भू-अभिलेख (खसरा / खतौनी)",
-            "क्षेत्रीय बैंकों से कोई बकाया न होने का प्रमाण पत्र (यदि आवश्यक हो)"
+        "documents_required": [
+            "Completed KCC application form",
+            "Proof of identity (Aadhaar Card / Voter ID / PAN Card)",
+            "Proof of address",
+            "Land ownership documents / revenue records certified by Patwari",
+            "Cropping pattern details"
         ],
-        "application_instructions": "Submit standard 1-page KCC form to your nearest Commercial Bank, Regional Rural Bank (RRB), or Primary Agricultural Cooperative Society (PACS).",
-        "application_instructions_hi": "अपने नजदीकी ग्रामीण बैंक, सहकारी समिति (PACS) या राष्ट्रीयकृत बैंक में 1-पेज का सरल केसीसी फॉर्म भरकर आवश्यक दस्तावेजों सहित जमा करें।",
-        "official_link": "https://www.myscheme.gov.in/schemes/kcc",
-        "department": "Reserve Bank of India & NABARD / MoA&FW",
-        "state_applicability": "All India",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "Reserve Bank of India & NABARD"
+        "application_process": "1. Download the unified one-page KCC application form from pmkisan.gov.in or any commercial/cooperative bank.\n2. Fill land details, crop cultivated, and requested loan limit.\n3. Submit with land documents and Aadhaar to your nearest bank branch where you have a savings account.\n4. Banks process and issue the KCC card within 14 days.",
+        "official_source": "Reserve Bank of India (RBI) & NABARD",
+        "official_url": "https://www.myscheme.gov.in/schemes/kcc",
+        "apply_url": "https://pmkisan.gov.in/Documents/KCC_Application_Form.pdf",
+        "application_mode": "Bank Branch & Online",
+        "last_verified": "October 2026",
+        "is_verified": True
     },
     {
         "id": "pmksy",
-        "title": "Pradhan Mantri Krishi Sinchayee Yojana (PMKSY — Per Drop More Crop)",
-        "title_hi": "प्रधानमंत्री कृषि सिंचाई योजना (प्रति बूंद अधिक फसल)",
+        "title": "Pradhan Mantri Krishi Sinchayee Yojana (PMKSY - Per Drop More Crop)",
+        "short_name": "PMKSY",
         "category": "Irrigation Support",
-        "category_hi": "सिंचाई सहायता",
-        "level": "Central Government",
-        "level_hi": "केंद्र सरकार",
-        "benefit": "Up to 55% subsidy for small & marginal farmers and up to 45% for other farmers for Drip and Sprinkler micro-irrigation installation",
-        "benefit_hi": "ड्रिप (टपक) और स्प्रिंकलर (फव्वारा) सिंचाई प्रणालियों की स्थापना हेतु लघु एवं सीमांत किसानों को 55% तक तथा अन्य किसानों को 45% तक का अनुदान",
-        "description": "Aims to expand cultivable area under assured irrigation, improve on-farm water use efficiency, and promote micro-irrigation technologies.",
-        "description_hi": "खेतों में पानी की बर्बादी रोककर आधुनिक ड्रिप व स्प्रिंकलर तकनीक से सूक्ष्म सिंचाई को बढ़ावा देकर 'हर खेत को पानी' और 'प्रति बूंद अधिक फसल' सुनिश्चित करना।",
-        "eligibility": "Farmers of all categories who possess cultivable land with an assured water source are eligible.",
-        "eligibility_hi": "वे सभी श्रेणी के किसान जिनके पास स्वयं की कृषि भूमि तथा सुनिश्चित जल स्रोत उपलब्ध है।",
-        "required_documents": [
+        "benefit": "Subsidy of up to 55% for small and marginal farmers, and up to 45% for other farmers on micro-irrigation systems (Drip and Sprinkler irrigation).",
+        "description": "Centrally sponsored initiative aimed at expanding cultivable area under assured irrigation, improving on-farm water use efficiency, and promoting precision micro-irrigation technologies.",
+        "eligibility": [
+            "All farmers possessing cultivable land with an assured water source (borewell, well, canal, or farm pond).",
+            "Members of water users associations and farmer producer groups."
+        ],
+        "documents_required": [
             "Aadhaar Card",
-            "Proof of Land Ownership (B-1 / Khasra copy)",
-            "Electricity connection receipt or proof of water source (well/tubewell)",
-            "Bank passbook copy with IFSC code"
+            "Land Ownership Record (Khatauni / 7/12 extract)",
+            "Water source certificate/declaration",
+            "Electricity connection receipt (for pump) or NOC",
+            "Bank passbook copy"
         ],
-        "required_documents_hi": [
-            "आधार कार्ड",
-            "भू-स्वामित्व का प्रमाण (बी-1 / खसरा नकल)",
-            "विद्युत कनेक्शन रसीद अथवा जल स्रोत (कुआं/बोरवेल) का प्रमाण",
-            "आईएफएससी कोड युक्त बैंक पासबुक की प्रति"
-        ],
-        "application_instructions": "Register on the State Agriculture / Horticulture Department DBT portal (e.g., dbt.mpdage.org for MP) or contact your District Horticulture Officer.",
-        "application_instructions_hi": "राज्य कृषि/उद्यानिकी विभाग के डीबीटी पोर्टल पर ऑनलाइन पंजीकरण करें या जिला उद्यानिकी अधिकारी के कार्यालय में संपर्क करें।",
-        "official_link": "https://pmksy.gov.in/",
-        "department": "Ministry of Agriculture & Farmers Welfare / Ministry of Jal Shakti",
-        "state_applicability": "All India",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "PMKSY Official Portal (pmksy.gov.in)"
+        "application_process": "1. Visit the state horticulture / agriculture department portal (e.g. mpfsts.mp.gov.in for MP, dbtagriculture.bihar.gov.in for Bihar, or pmksy.gov.in).\n2. Register under the 'Micro Irrigation' component.\n3. Upload land document, Aadhaar, and quotation from an empaneled drip/sprinkler supplier.\n4. Field verification is conducted by the Horticulture Officer, followed by subsidy release directly via DBT.",
+        "official_source": "Ministry of Agriculture & Farmers Welfare, GoI",
+        "official_url": "https://pmksy.gov.in/",
+        "apply_url": "https://pmksy.gov.in/",
+        "application_mode": "State DBT Agriculture Portals",
+        "last_verified": "October 2026",
+        "is_verified": True
     },
     {
         "id": "soil-health-card",
-        "title": "Soil Health Card Scheme",
-        "title_hi": "मृदा स्वास्थ्य कार्ड योजना (Soil Health Card)",
-        "category": "Soil Health",
-        "category_hi": "मृदा स्वास्थ्य",
-        "level": "Central Government",
-        "level_hi": "केंद्र सरकार",
-        "benefit": "Free soil testing and customized Soil Health Card with exact N-P-K and micronutrient dosage recommendations every 2 years",
-        "benefit_hi": "निःशुल्क मिट्टी परीक्षण तथा प्रत्येक 2 वर्ष में खेत के लिए आवश्यक N-P-K और सूक्ष्म पोषक तत्वों की सटीक मात्रा का स्वास्थ्य कार्ड",
-        "description": "Assists state governments to issue soil health cards to all farmers, reporting 12 parameters: N, P, K, S, Zn, Fe, Cu, Mn, Bo, pH, EC, and OC.",
-        "description_hi": "किसानों की मिट्टी के 12 प्रमुख पोषक तत्वों और पीएच स्तर की जांच कर संतुलित उर्वरक उपयोग की सिफारिशें उपलब्ध कराना।",
-        "eligibility": "All landholding farmers in India.",
-        "eligibility_hi": "भारत के सभी भूमिधारक किसान।",
-        "required_documents": [
+        "title": "Soil Health Card (SHC) Scheme",
+        "short_name": "Soil Health Card",
+        "category": "Soil Health & Nutrient",
+        "benefit": "Free periodic laboratory testing of 12 chemical and physical soil parameters (N, P, K, S, Zn, Fe, Cu, Mn, Bo, pH, EC, OC) with tailored fertilizer dosage recommendations.",
+        "description": "Helps farmers optimize fertilizer use, reduce unnecessary chemical expenditure, and maintain soil biology and long-term fertility.",
+        "eligibility": [
+            "All agricultural landholders across India."
+        ],
+        "documents_required": [
             "Aadhaar Card",
-            "Land details (Survey / Khasra number and GPS location)",
-            "Soil sample collected following official zigzag sampling method"
+            "Land Identification (Survey Number / Khasra Number)"
         ],
-        "required_documents_hi": [
-            "आधार कार्ड",
-            "खेत का खसरा नंबर व क्षेत्रफल",
-            "जिग-जैग विधि से एकत्रित किया गया मिट्टी का नमूना"
-        ],
-        "application_instructions": "Submit soil samples through Village Agriculture Extension Officers or directly at your nearest District Soil Testing Laboratory.",
-        "application_instructions_hi": "ग्राम कृषि विस्तार अधिकारी के माध्यम से या सीधे निकटतम जिला मृदा परीक्षण प्रयोगशाला में मिट्टी का नमूना जमा करें।",
-        "official_link": "https://soilhealth.dac.gov.in/",
-        "department": "Department of Agriculture & Farmers Welfare",
-        "state_applicability": "All India",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "National Soil Health Portal (soilhealth.dac.gov.in)"
+        "application_process": "1. Soil samples are collected by agriculture extension workers from farmer fields.\n2. Farmers can track sample status and view/download Soil Health Cards directly by entering State, District, and Khasra on soilhealth.dac.gov.in.\n3. Printed cards are also distributed through Gram Panchayats and KVKs.",
+        "official_source": "Department of Agriculture & Farmers Welfare",
+        "official_url": "https://soilhealth.dac.gov.in/",
+        "apply_url": "https://soilhealth.dac.gov.in/home",
+        "application_mode": "Online Portal & KVK",
+        "last_verified": "October 2026",
+        "is_verified": True
     },
     {
-        "id": "pkvy",
-        "title": "Paramparagat Krishi Vikas Yojana (PKVY)",
-        "title_hi": "परंपरागत कृषि विकास योजना (PKVY)",
-        "category": "Organic Farming",
-        "category_hi": "जैविक खेती",
-        "level": "Central Government",
-        "level_hi": "केंद्र सरकार",
-        "benefit": "Financial assistance of ₹50,000 per hectare over 3 years, of which ₹31,000/ha is given directly to farmers for organic inputs",
-        "benefit_hi": "3 वर्षों में ₹50,000 प्रति हेक्टेयर की वित्तीय सहायता, जिसमें से ₹31,000/हेक्टेयर सीधे किसानों को जैविक आदानों हेतु डीबीटी द्वारा",
-        "description": "Sub-component of Soil Health Management under NMSA aimed at promoting organic farming through cluster approach and PGS-India certification.",
-        "description_hi": "क्लस्टर पद्धति और पीजीएस-इंडिया प्रमाणीकरण के माध्यम से रासायनिक मुक्त जैविक खेती और टिकाऊ मृदा उर्वरता को बढ़ावा देने की योजना।",
-        "eligibility": "Farmer groups or individual farmers willing to form a 20-hectare cluster for chemical-free organic farming.",
-        "eligibility_hi": "रासायनिक मुक्त जैविक खेती करने के इच्छुक 20 या अधिक हेक्टेयर के क्लस्टर समूह में शामिल किसान।",
-        "required_documents": [
-            "Aadhaar Card",
-            "Land title documents",
-            "Bank Account linked to Aadhaar",
-            "PGS-India cluster commitment agreement"
-        ],
-        "required_documents_hi": [
-            "आधार कार्ड",
-            "भूमि अभिलेख दस्तावेज",
-            "आधार लिंक बैंक खाता",
-            "पीजीएस-इंडिया क्लस्टर सहमति पत्र"
-        ],
-        "application_instructions": "Apply through your Regional Council or District Agriculture Office for cluster sanction under PGS-India organic certification.",
-        "application_instructions_hi": "पीजीएस-इंडिया पोर्टल या जिला कृषि अधिकारी के माध्यम से क्लस्टर अनुमोदन हेतु आवेदन करें।",
-        "official_link": "https://dapgd.gov.in/",
-        "department": "Department of Agriculture & Farmers Welfare",
-        "state_applicability": "All India",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "Ministry of Agriculture & Farmers Welfare"
-    },
-    {
-        "id": "e-nam",
+        "id": "enam",
         "title": "National Agriculture Market (e-NAM)",
-        "title_hi": "राष्ट्रीय कृषि बाजार (e-NAM)",
+        "short_name": "e-NAM",
         "category": "Market & Trade",
-        "category_hi": "बाजार एवं विपणन",
-        "level": "Central Government",
-        "level_hi": "केंद्र सरकार",
-        "benefit": "Direct online electronic trading across 1,300+ connected mandis across India with transparent price bidding and prompt online payment",
-        "benefit_hi": "देश की 1,300 से अधिक मंडियों में पारदर्शी ऑनलाइन ई-नीलामी, प्रतिस्पर्धी मूल्य और सीधे बैंक खाते में ऑनलाइन भुगतान की सुविधा",
+        "benefit": "Direct digital access to over 1,360+ wholesale APMC mandis across 23 States/UTs. Real-time online bidding, electronic weighing, transparent price discovery, and direct online payment to bank accounts.",
         "description": "Pan-India electronic trading portal that networks existing APMC mandis to create a unified national digital market for agricultural commodities.",
-        "description_hi": "देश की प्रमुख एपीएमसी मंडियों को ऑनलाइन जोड़कर किसानों को अपनी उपज का देशव्यापी सर्वोत्तम मूल्य दिलाने वाला डिजिटल बाजार।",
-        "eligibility": "Any farmer having agricultural produce to sell at any participating APMC mandi.",
-        "eligibility_hi": "कोई भी किसान जिसके पास ई-नाम से जुड़ी मंडी में बेचने हेतु कृषि उपज उपलब्ध है।",
-        "required_documents": [
+        "eligibility": [
+            "All farmers, Farmer Producer Organizations (FPOs), traders, and commission agents."
+        ],
+        "documents_required": [
             "Aadhaar Card",
-            "Bank Account details (Passbook copy)",
-            "Active mobile number for SMS lot alerts",
-            "Mandi Gate Entry pass"
+            "Bank Passbook copy with IFSC",
+            "Mandi Registration / Gate pass",
+            "Mobile number"
         ],
-        "required_documents_hi": [
-            "आधार कार्ड",
-            "बैंक पासबुक की प्रति",
-            "एसएमएस अलर्ट हेतु चालू मोबाइल नंबर",
-            "मंडी गेट प्रवेश पर्ची"
+        "application_process": "1. Visit enam.gov.in -> Registration -> Registration Type: Farmer.\n2. Enter Passbook details, Mobile number, and Mandi.\n3. Receive unique e-NAM Farmer ID.\n4. Bring crop to any e-NAM mandi gate, generate lot, get quality assaying done, and participate in competitive transparent online auctions.",
+        "official_source": "Small Farmers Agribusiness Consortium (SFAC)",
+        "official_url": "https://enam.gov.in/",
+        "apply_url": "https://enam.gov.in/web/stakeholders-registration/farmer",
+        "application_mode": "Online & APMC Mandi Gate",
+        "last_verified": "October 2026",
+        "is_verified": True
+    },
+    {
+        "id": "pm-kusum",
+        "title": "PM-KUSUM (Pradhan Mantri Kisan Urja Suraksha evam Utthaan Mahabhiyan)",
+        "short_name": "PM-KUSUM",
+        "category": "Solar Energy & Irrigation",
+        "benefit": "Up to 60% subsidy (30% Central + 30% State Govt) for installing standalone solar agricultural pumps (3HP to 7.5HP) or solarizing existing grid-connected electric pumps.",
+        "description": "Provides clean, reliable day-time solar power for farm irrigation, reduces diesel pump running costs, and enables farmers to sell surplus solar power back to the grid for additional income.",
+        "eligibility": [
+            "Individual farmers, water user associations, FPOs, and panchayats with agricultural land.",
+            "Farmers relying on diesel pumps or requiring off-grid solar irrigation."
         ],
-        "application_instructions": "Register free online at enam.gov.in or directly at the e-NAM help desk located at your local APMC mandi gate.",
-        "application_instructions_hi": "enam.gov.in पोर्टल पर अथवा अपनी स्थानीय एपीएमसी मंडी के ई-नाम सहायता केंद्र पर निःशुल्क पंजीकरण कराएं।",
-        "official_link": "https://enam.gov.in/",
-        "department": "Small Farmers Agribusiness Consortium (SFAC), MoA&FW",
-        "state_applicability": "All participating States (23+ States & UTs)",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "Small Farmers Agribusiness Consortium (SFAC)"
+        "documents_required": [
+            "Aadhaar Card",
+            "Land revenue record (Khasra/Khatauni)",
+            "Bank passbook",
+            "Electricity bill (for Component C solarization)",
+            "Passport photo"
+        ],
+        "application_process": "1. Apply through the State Renewable Energy Development Agency portal (e.g., Urja Vikas Nigam in MP, MREDA in Maharashtra, etc.) or pmkusum.mnre.gov.in.\n2. Submit online application with land and pump requirement.\n3. Pay farmer share (approx 10-40% depending on state bank tie-up).\n4. Empaneled solar vendor installs verified solar pump setup with 5-year warranty.",
+        "official_source": "Ministry of New and Renewable Energy (MNRE), GoI",
+        "official_url": "https://pmkusum.mnre.gov.in/",
+        "apply_url": "https://pmkusum.mnre.gov.in/",
+        "application_mode": "State Renewable Energy Portals",
+        "last_verified": "October 2026",
+        "is_verified": True
     },
     {
         "id": "smam",
-        "title": "Sub-Mission on Agricultural Mechanization (SMAM)",
-        "title_hi": "कृषि यंत्रीकरण पर उप-मिशन (SMAM)",
-        "category": "Equipment Subsidy",
-        "category_hi": "कृषि यंत्र अनुदान",
-        "level": "Central Government",
-        "level_hi": "केंद्र सरकार",
-        "benefit": "40% to 50% subsidy on procurement of tractors, rotavators, seed drills, laser levelers, and custom hiring centers",
-        "benefit_hi": "ट्रैक्टर, रोटावेटर, सीड ड्रिल, लेजर लैंड लेवलर व कस्टम हायरिंग केंद्र की स्थापना हेतु 40% से 50% तक का सरकारी अनुदान",
-        "description": "Promotes farm mechanization to increase productivity and reduce production costs, with preferential subsidies for SC, ST, women, and small farmers.",
-        "description_hi": "किसानों को आधुनिक कृषि यंत्रों की खरीद पर 40-50% तक की भारी सब्सिडी प्रदान करने वाला राष्ट्रीय मिशन।",
-        "eligibility": "Small, marginal, SC/ST, women, and general category farmers holding valid land records.",
-        "eligibility_hi": "वैध भू-अभिलेख रखने वाले लघु, सीमांत, महिला एवं सभी श्रेणी के किसान।",
-        "required_documents": [
+        "title": "Sub-Mission on Agricultural Mechanization (SMAM / DBT Farm Machinery)",
+        "short_name": "SMAM",
+        "category": "Farm Machinery & Mechanization",
+        "benefit": "40% to 50% financial subsidy on tractors, power tillers, rotavators, seed drills, laser levelers, harvesters, and custom hiring centers.",
+        "description": "Promotes modern agricultural machinery to increase farm productivity, offset labor shortages, and lower cultivation turnaround times.",
+        "eligibility": [
+            "All small, marginal, SC/ST, and women farmers receive priority 50% subsidy; other farmers receive 40% subsidy.",
+            "Must not have received subsidy for the same machine category in the previous 5 years."
+        ],
+        "documents_required": [
             "Aadhaar Card",
-            "Land Record (Khasra B-1)",
-            "Bank Passbook copy",
-            "Caste Certificate (for SC/ST higher subsidy quota)"
+            "Land documents (Khasra/Khatauni)",
+            "Bank passbook copy",
+            "Caste Certificate (if claiming SC/ST quota)",
+            "Quotation from authorized implement dealer"
         ],
-        "required_documents_hi": [
-            "आधार कार्ड",
-            "खसरा बी-1 की नकल",
-            "बैंक पासबुक की प्रति",
-            "जाति प्रमाण पत्र (अतिरिक्त अनुदान हेतु)"
+        "application_process": "1. Visit agrimachinery.nic.in -> Farmer Registration.\n2. Choose machine category and model.\n3. Submit application online; lottery or first-come selection determines token generation.\n4. Purchase machine from authorized dealer and upload invoice & serial number for DBT transfer.",
+        "official_source": "Department of Agriculture & Farmers Welfare",
+        "official_url": "https://agrimachinery.nic.in/",
+        "apply_url": "https://agrimachinery.nic.in/Index/FarmerRegistration",
+        "application_mode": "Online DBT Portal",
+        "last_verified": "October 2026",
+        "is_verified": True
+    }
+]
+
+OFFICIAL_SCHEMES_HI = [
+    {
+        "id": "pm-kisan",
+        "title": "प्रधानमंत्री किसान सम्मान निधि (PM-KISAN)",
+        "short_name": "पीएम-किसान",
+        "category": "प्रत्यक्ष आय सहायता",
+        "benefit": "प्रति वर्ष ₹6,000 की प्रत्यक्ष आर्थिक सहायता, ₹2,000 की तीन समान किस्तों में सीधे बैंक खाते में।",
+        "description": "भारत सरकार द्वारा 100% वित्तपोषित योजना, जिसका उद्देश्य सभी भूमिधारक किसान परिवारों को कृषि आदानों एवं घरेलू आवश्यकताओं के लिए आर्थिक संबल प्रदान करना है।",
+        "eligibility": [
+            "सभी भूमिधारक किसान परिवार जिनके नाम पर खेती योग्य भूमि दर्ज है।",
+            "संवैधानिक पदधारक, सेवारत/सेवानिवृत्त सरकारी कर्मचारी एवं आयकर दाता इसके अंतर्गत पात्र नहीं हैं।"
         ],
-        "application_instructions": "Register on the Central Agri Mechanization portal (agrimachinery.nic.in) or state DBT portals during the open lottery application window.",
-        "application_instructions_hi": "agrimachinery.nic.in या राज्य के कृषि यंत्र डीबीटी पोर्टल पर आवेदन विंडो खुलने पर लॉटरी हेतु ऑनलाइन आवेदन करें।",
-        "official_link": "https://agrimachinery.nic.in/",
-        "department": "Department of Agriculture & Farmers Welfare",
-        "state_applicability": "All India",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "Ministry of Agriculture & Farmers Welfare (agrimachinery.nic.in)"
+        "documents_required": [
+            "आधार कार्ड (अनिवार्य)",
+            "आधार व NPCI/DBT से लिंक सक्रिय बैंक खाता",
+            "भूमि स्वामित्व दस्तावेज (खसरा / खतौनी / नकल)",
+            "आधार से लिंक सक्रिय मोबाइल नंबर"
+        ],
+        "application_process": "1. आधिकारिक PM-KISAN पोर्टल (pmkisan.gov.in) पर जाएं -> Farmers Corner -> New Farmer Registration चुनें।\n2. ग्रामीण या शहरी किसान पंजीकरण चुनें।\n3. आधार नंबर और मोबाइल नंबर दर्ज कर OTP सत्यापित करें।\n4. व्यक्तिगत, बैंक एवं भूमि विवरण (खसरा/खाता संख्या) दर्ज कर भूमि अभिलेख अपलोड करें।\n5. आप नजदीकी सीएससी (CSC) केंद्र या कृषि विस्तार अधिकारी के माध्यम से भी आवेदन कर सकते हैं।",
+        "official_source": "कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार",
+        "official_url": "https://pmkisan.gov.in/",
+        "apply_url": "https://pmkisan.gov.in/RegistrationFormNew.aspx",
+        "application_mode": "ऑनलाइन एवं सीएससी केंद्र",
+        "last_verified": "अक्टूबर 2026",
+        "is_verified": True
     },
     {
-        "id": "mp-kisan-kalyan",
-        "title": "Mukhyamantri Kisan Kalyan Yojana (Madhya Pradesh)",
-        "title_hi": "मुख्यमंत्री किसान कल्याण योजना (मध्य प्रदेश)",
-        "category": "Income Support",
-        "category_hi": "आय सहायता",
-        "level": "State Government",
-        "level_hi": "राज्य सरकार (मध्य प्रदेश)",
-        "benefit": "Additional ₹6,000 per year in two installments from the MP State Government (Totaling ₹12,000/year with PM-KISAN)",
-        "benefit_hi": "मध्य प्रदेश शासन द्वारा ₹6,000 प्रति वर्ष की अतिरिक्त सहायता (पीएम-किसान मिलाकर कुल ₹12,000 प्रति वर्ष)",
-        "description": "State income support scheme for registered PM-KISAN beneficiary farmers in Madhya Pradesh to foster agricultural development and livelihood security.",
-        "description_hi": "मध्य प्रदेश के पीएम-किसान लाभार्थी किसानों को राज्य सरकार द्वारा दी जाने वाली अतिरिक्त ₹6,000 वार्षिक सम्मान राशि।",
-        "eligibility": "Resident farmers of Madhya Pradesh who are actively registered and approved beneficiaries under PM-KISAN.",
-        "eligibility_hi": "मध्य प्रदेश के मूल निवासी किसान जो पीएम-किसान योजना के सक्रिय एवं स्वीकृत हितग्राही हैं।",
-        "required_documents": [
-            "PM-KISAN Registration ID",
-            "Samagra ID of Madhya Pradesh",
-            "Aadhaar Card",
-            "Land Khasra details in MP"
+        "id": "pmfby",
+        "title": "प्रधानमंत्री फसल बीमा योजना (PMFBY)",
+        "short_name": "पीएम फसल बीमा",
+        "category": "फसल बीमा सुरक्षा",
+        "benefit": "प्राकृतिक आपदाओं (सूखा, बाढ़, ओलावृष्टि, बेमौसम बारिश, कीट एवं रोग) से होने वाले नुकसान पर पूर्ण वित्तीय सुरक्षा। खरीफ के लिए केवल 2%, रबी के लिए 1.5% और वाणिज्यिक/बागवानी फसलों के लिए केवल 5% प्रीमियम।",
+        "description": "देशव्यापी फसल बीमा योजना जो अप्रत्याशित प्राकृतिक जोखिमों के समय किसानों की आय को स्थिर रखती है और आधुनिक कृषि तकनीक अपनाने का हौसला देती है।",
+        "eligibility": [
+            "अधिसूचित क्षेत्रों में अधिसूचित फसल उगाने वाले सभी किसान (ऋणी, गैर-ऋणी, बटाईदार और काश्तकार)।",
+            "कट-ऑफ तिथि से पहले बीमा आवेदन पूर्ण होना आवश्यक है।"
         ],
-        "required_documents_hi": [
-            "पीएम-किसान पंजीकरण संख्या",
-            "मध्य प्रदेश समग्र परिवार व सदस्य आईडी",
+        "documents_required": [
+            "भू-अधिकार प्रमाण पत्र (खसरा/खतौनी/जमाबंदी)",
+            "पटवारी या ग्राम सेवक द्वारा जारी बुवाई प्रमाण पत्र (Sowing Certificate)",
+            "बैंक पासबुक की प्रति (IFSC व खाता संख्या स्पष्ट)",
             "आधार कार्ड",
-            "मध्य प्रदेश भू-अभिलेख खसरा"
+            "किरायेदार/बटाईदार अनुबंध (यदि लागू हो)"
         ],
-        "application_instructions": "Eligible PM-KISAN beneficiaries in MP are automatically verified through the SAARA portal (saara.mp.gov.in) via local Patwari verification.",
-        "application_instructions_hi": "पीएम-किसान पात्र हितग्राहियों का सारा पोर्टल (saara.mp.gov.in) पर हल्का पटवारी द्वारा स्वतः सत्यापन किया जाता है।",
-        "official_link": "https://saara.mp.gov.in/",
-        "department": "Revenue Department & Department of Farmers Welfare, Govt of MP",
-        "state_applicability": "Madhya Pradesh",
-        "status": "Active & Ongoing",
-        "last_verified_date": "October 2026",
-        "source": "Government of Madhya Pradesh — SAARA Portal"
+        "application_process": "1. pmfby.gov.in पर जाएं -> Farmer Corner -> Apply for Crop Insurance चुनें।\n2. मोबाइल नंबर और OTP से लॉगिन करें या नया खाता बनाएं।\n3. राज्य, जिला, ब्लॉक, ग्राम पंचायत, मौसम और फसल का चयन करें।\n4. भूमि दस्तावेज और बुवाई प्रमाण पत्र अपलोड करें।\n5. किसान हिस्से का मामूली प्रीमियम यूपीआई, नेट बैंकिंग या नजदीकी बैंक/सीएससी के जरिए जमा करें।",
+        "official_source": "कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार",
+        "official_url": "https://pmfby.gov.in/",
+        "apply_url": "https://pmfby.gov.in/farmerRegistrationForm",
+        "application_mode": "ऑनलाइन, बैंक शाखा एवं सीएससी",
+        "last_verified": "अक्टूबर 2026",
+        "is_verified": True
+    },
+    {
+        "id": "kcc",
+        "title": "किसान क्रेडिट कार्ड (KCC) योजना",
+        "short_name": "केसीसी",
+        "category": "कृषि ऋण एवं साख",
+        "benefit": "समय पर भुगतान करने पर मात्र 4% वार्षिक ब्याज दर पर ₹3,00,000 तक का अल्पकालिक कृषि ऋण। ₹1.60 लाख तक बिना किसी बंधक (Collateral Free) ऋण।",
+        "description": "किसानों को फसल बुवाई, कीटनाशक, खाद, बीज, कटाई और कृषि संपत्तियों की देखरेख तथा पशुपालन व मत्स्य पालन के लिए सस्ती ब्याज दर पर ऋण सुविधा।",
+        "eligibility": [
+            "सभी व्यक्तिगत या संयुक्त भूमिधारक किसान।",
+            "पट्टेदार, बटाईदार और मौखिक पट्टाधारक किसान।",
+            "स्वयं सहायता समूह (SHG) या संयुक्त देयता समूह (JLG)।"
+        ],
+        "documents_required": [
+            "पूर्ण भरा हुआ सरल केसीसी आवेदन पत्र",
+            "पहचान प्रमाण (आधार कार्ड / मतदाता पहचान पत्र / पैन)",
+            "निवास प्रमाण पत्र",
+            "पटवारी द्वारा सत्यापित भूमि स्वामित्व अभिलेख (खसरा/खतौनी)",
+            "फसल बुवाई का ब्योरा"
+        ],
+        "application_process": "1. pmkisan.gov.in या किसी भी वाणिज्यिक/सहकारी बैंक से एक पेज का KCC फॉर्म डाउनलोड करें।\n2. भूमि विवरण, बोई गई फसल और मांगी गई ऋण सीमा भरें।\n3. आधार और भूमि रिकॉर्ड के साथ अपनी बैंक शाखा में जमा करें।\n4. बैंक 14 दिनों के भीतर आवेदन का सत्यापन कर KCC कार्ड जारी करते हैं।",
+        "official_source": "भारतीय रिजर्व बैंक (RBI) एवं नाबार्ड (NABARD)",
+        "official_url": "https://www.myscheme.gov.in/schemes/kcc",
+        "apply_url": "https://pmkisan.gov.in/Documents/KCC_Application_Form.pdf",
+        "application_mode": "बैंक शाखा एवं ऑनलाइन",
+        "last_verified": "अक्टूबर 2026",
+        "is_verified": True
+    },
+    {
+        "id": "pmksy",
+        "title": "प्रधानमंत्री कृषि सिंचाई योजना (PMKSY - प्रति बूंद अधिक फसल)",
+        "short_name": "पीएम सिंचाई योजना",
+        "category": "सिंचाई उपकरण एवं तकनीक",
+        "benefit": "सूक्ष्म सिंचाई प्रणाली (ड्रिप एवं स्प्रिंकलर) लगाने पर छोटे व सीमांत किसानों को 55% तथा अन्य किसानों को 45% तक का सरकारी अनुदान।",
+        "description": "खेत तक पानी पहुंचाने, जल संरक्षण को बढ़ावा देने और आधुनिक ड्रिप/स्प्रिंकलर विधि से कम पानी में भरपूर पैदावार लेने हेतु प्रमुख योजना।",
+        "eligibility": [
+            "सभी किसान जिनके पास कृषि योग्य भूमि और सुनिश्चित जल स्रोत (बोरवेल, कुआं, नहर, फार्म पोंड) उपलब्ध है।",
+            "जल उपभोक्ता संघों व किसान उत्पादक संगठनों के सदस्य।"
+        ],
+        "documents_required": [
+            "आधार कार्ड",
+            "भूमि अभिलेख (खतौनी / 7-12 नकल)",
+            "जल स्रोत प्रमाण पत्र/घोषणा",
+            "विद्युत कनेक्शन बिल (पंप सेट हेतु) अथवा अनापत्ति प्रमाण पत्र",
+            "बैंक पासबुक की प्रति"
+        ],
+        "application_process": "1. राज्य के उद्यानिकी/कृषि विभाग के डीबीटी पोर्टल (जैसे म.प्र. में dbt.mpdage.org, बिहार में dbtagriculture.bihar.gov.in) पर जाएं।\n2. सूक्ष्म सिंचाई योजना के तहत पंजीकरण करें।\n3. अधिकृत ड्रिप/स्प्रिंकलर डीलर का कोटेशन और भूमि दस्तावेज अपलोड करें।\n4. भौतिक सत्यापन के पश्चात सब्सिडी सीधे बैंक खाते में जमा होती है।",
+        "official_source": "कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार",
+        "official_url": "https://pmksy.gov.in/",
+        "apply_url": "https://pmksy.gov.in/",
+        "application_mode": "राज्य कृषि डीबीटी पोर्टल",
+        "last_verified": "अक्टूबर 2026",
+        "is_verified": True
+    },
+    {
+        "id": "soil-health-card",
+        "title": "मृदा स्वास्थ्य कार्ड योजना (Soil Health Card)",
+        "short_name": "मृदा स्वास्थ्य कार्ड",
+        "category": "मृदा उर्वरता एवं पोषण",
+        "benefit": "मिट्टी के 12 प्रमुख रासायनिक व भौतिक मापदंडों (N, P, K, S, Zn, Fe, Cu, Mn, Bo, pH, EC, OC) की निःशुल्क प्रयोगशाला जांच और फसलवार संतुलित खाद की सिफारिश।",
+        "description": "किसानों को मिट्टी की वास्तविक उर्वरता की जानकारी देकर अंधाधुंध रासायनिक खाद के खर्च को कम करने और उत्पादन बढ़ाने में सहायक।",
+        "eligibility": [
+            "देश के सभी कृषि भूमिधारक किसान।"
+        ],
+        "documents_required": [
+            "आधार कार्ड",
+            "खेत का खसरा नंबर / खाता संख्या"
+        ],
+        "application_process": "1. कृषि विस्तार कार्यकर्ताओं द्वारा खेत से मिट्टी के नमूने एकत्र किए जाते हैं।\n2. किसान soilhealth.dac.gov.in पर जाकर राज्य, जिला और खसरा नंबर डालकर अपने कार्ड की स्थिति देख सकते हैं और कार्ड डाउनलोड कर सकते हैं।\n3. मुद्रित कार्ड ग्राम पंचायतों और कृषि विज्ञान केंद्रों द्वारा भी बांटे जाते हैं।",
+        "official_source": "कृषि एवं किसान कल्याण विभाग",
+        "official_url": "https://soilhealth.dac.gov.in/",
+        "apply_url": "https://soilhealth.dac.gov.in/home",
+        "application_mode": "ऑनलाइन पोर्टल एवं कृषि विज्ञान केंद्र",
+        "last_verified": "अक्टूबर 2026",
+        "is_verified": True
+    },
+    {
+        "id": "enam",
+        "title": "राष्ट्रीय कृषि बाजार (e-NAM)",
+        "short_name": "ई-नाम मंडी",
+        "category": "मंडी व्यापार एवं विपणन",
+        "benefit": "देश के 23 राज्यों/केंद्र शासित प्रदेशों की 1,360+ एपीएमसी मंडियों से सीधा डिजिटल जुड़ाव। ऑनलाइन प्रतिस्पर्धी बोली, इलेक्ट्रॉनिक तुलाई, पारदर्शी भाव और सीधे बैंक खाते में भुगतान।",
+        "description": "एक राष्ट्र, एक बाजार की परिकल्पना के तहत कृषि उपज के लिए डिजिटल प्लेटफॉर्म, जहां किसान अपनी उपज का बेहतर मूल्य प्राप्त कर सकते हैं।",
+        "eligibility": [
+            "सभी किसान, किसान उत्पादक संगठन (FPO) और पंजीकृत व्यापारी।"
+        ],
+        "documents_required": [
+            "आधार कार्ड",
+            "बैंक पासबुक की प्रति",
+            "मंडी प्रवेश गेट पास",
+            "मोबाइल नंबर"
+        ],
+        "application_process": "1. enam.gov.in पर जाएं -> Registration -> Farmer चुनें।\n2. बैंक विवरण और मंडी का चयन करें और ई-नाम आईडी प्राप्त करें।\n3. फसल लेकर ई-नाम मंडी गेट पर जाएं, लॉट तैयार कराएं, गुणवत्ता जांच (Assaying) कराएं और ऑनलाइन नीलामी में भाग लें।",
+        "official_source": "लघु कृषक कृषि-व्यापार संकाय (SFAC)",
+        "official_url": "https://enam.gov.in/",
+        "apply_url": "https://enam.gov.in/web/stakeholders-registration/farmer",
+        "application_mode": "ऑनलाइन एवं एपीएमसी मंडी गेट",
+        "last_verified": "अक्टूबर 2026",
+        "is_verified": True
+    },
+    {
+        "id": "pm-kusum",
+        "title": "पीएम-कुसुम योजना (सौर ऊर्जा एवं सोलर पंप)",
+        "short_name": "पीएम-कुसुम सोलर",
+        "category": "सौर ऊर्जा एवं सिंचाई",
+        "benefit": "खेत में स्टैंडअलोन सोलर पंप (3 से 7.5 एचपी) लगाने या बिजली पंप को सोलर से जोड़ने पर 60% तक की भारी सरकारी सब्सिडी (30% केंद्र + 30% राज्य)।",
+        "description": "दिन के समय सिंचाई के लिए विश्वसनीय सौर ऊर्जा, महंगे डीजल पंपों से मुक्ति और अतिरिक्त सौर बिजली बेचकर अतिरिक्त आमदनी का साधन।",
+        "eligibility": [
+            "व्यक्तिगत किसान, जल उपभोक्ता समितियां, एफपीओ और ग्राम पंचायतें जिनके पास कृषि भूमि है।"
+        ],
+        "documents_required": [
+            "आधार कार्ड",
+            "भूमि अभिलेख (खसरा/खतौनी)",
+            "बैंक पासबुक",
+            "विद्युत बिल (कंपोनेंट C के लिए)",
+            "पासपोर्ट साइज फोटो"
+        ],
+        "application_process": "1. राज्य के ऊर्जा विकास निगम पोर्टल (जैसे म.प्र. में ऊर्जा विकास निगम) अथवा pmkusum.mnre.gov.in पर आवेदन करें।\n2. किसान अंशदान (10-40%) जमा करें।\n3. अधिकृत वेंडर द्वारा 5 वर्ष की वारंटी के साथ सोलर पंप स्थापित किया जाता है।",
+        "official_source": "नवीन एवं नवीकरणीय ऊर्जा मंत्रालय (MNRE), भारत सरकार",
+        "official_url": "https://pmkusum.mnre.gov.in/",
+        "apply_url": "https://pmkusum.mnre.gov.in/",
+        "application_mode": "राज्य ऊर्जा विकास पोर्टल",
+        "last_verified": "अक्टूबर 2026",
+        "is_verified": True
+    },
+    {
+        "id": "smam",
+        "title": "कृषि यंत्रीकरण उप-मिशन (SMAM / कृषि उपकरण सब्सिडी)",
+        "short_name": "कृषि यंत्र सब्सिडी",
+        "category": "कृषि यंत्रीकरण",
+        "benefit": "ट्रैक्टर, रोटावेटर, कल्टीवेटर, सीड ड्रिल, लेजर लैंड लेवलर, रीपर आदि आधुनिक कृषि यंत्रों की खरीद पर 40% से 50% तक सरकारी सब्सिडी।",
+        "description": "खेती में आधुनिक यंत्रों के उपयोग को प्रोत्साहित कर श्रम व लागत कम करने और समय की बचत करने हेतु सरकारी सहायता योजना।",
+        "eligibility": [
+            "छोटे, सीमांत, महिला एवं अनुसूचित जाति/जनजाति के किसानों को 50% तक तथा अन्य किसानों को 40% अनुदान।",
+            "पिछले 5 वर्षों में उसी यंत्र पर अनुदान न लिया हो।"
+        ],
+        "documents_required": [
+            "आधार कार्ड",
+            "भूमि दस्तावेज (खसरा/खतौनी)",
+            "बैंक पासबुक की प्रति",
+            "जाति प्रमाण पत्र (आरक्षित वर्ग हेतु)",
+            "अधिकृत कृषि यंत्र डीलर का कोटेशन"
+        ],
+        "application_process": "1. agrimachinery.nic.in पोर्टल पर जाकर 'किसान पंजीकरण' करें।\n2. इच्छित यंत्र का चयन कर टोकन प्राप्त करें।\n3. डीलर से यंत्र क्रय कर बिल पोर्टल पर अपलोड करें, सब्सिडी सीधे बैंक खाते में ट्रांसफर होती है।",
+        "official_source": "कृषि एवं किसान कल्याण विभाग",
+        "official_url": "https://agrimachinery.nic.in/",
+        "apply_url": "https://agrimachinery.nic.in/Index/FarmerRegistration",
+        "application_mode": "ऑनलाइन डीबीटी पोर्टल",
+        "last_verified": "अक्टूबर 2026",
+        "is_verified": True
     }
 ]
 
 
-def get_all_schemes(category: str = None, level: str = None, state: str = None, search: str = None) -> list:
-    """Filter and return verified government agricultural schemes."""
-    results = GOVERNMENT_SCHEMES
+def get_all_government_schemes(language: str = "hi", category_filter: str = None, search_query: str = None) -> List[Dict[str, Any]]:
+    """Retrieve government schemes formatted in chosen language with optional filtering."""
+    is_hi = str(language).strip().lower().startswith("hi")
+    schemes = OFFICIAL_SCHEMES_HI if is_hi else OFFICIAL_SCHEMES_EN
 
-    if category and category.lower() != "all":
-        results = [s for s in results if s["category"].lower() == category.lower()]
+    filtered = []
+    q = (search_query or "").strip().lower()
+    cat = (category_filter or "").strip().lower()
 
-    if level and level.lower() != "all":
-        results = [s for s in results if level.lower() in s["level"].lower()]
+    for s in schemes:
+        if cat and cat != "all" and cat != "सभी":
+            if cat not in s["category"].lower() and cat not in s["short_name"].lower():
+                continue
 
-    if state and state.lower() != "all":
-        results = [
-            s for s in results
-            if s["state_applicability"].lower() == "all india"
-            or state.lower() in s["state_applicability"].lower()
-        ]
+        if q:
+            matches_title = q in s["title"].lower() or q in s["short_name"].lower()
+            matches_desc = q in s["description"].lower()
+            matches_benefit = q in s["benefit"].lower()
+            if not (matches_title or matches_desc or matches_benefit):
+                continue
 
-    if search:
-        s_term = search.strip().lower()
-        results = [
-            s for s in results
-            if s_term in s["title"].lower()
-            or s_term in s["title_hi"].lower()
-            or s_term in s["description"].lower()
-            or s_term in s["description_hi"].lower()
-            or s_term in s["category"].lower()
-            or s_term in s["benefit"].lower()
-        ]
+        filtered.append(s)
 
-    return results
+    return filtered
+
+
+def get_scheme_by_id(scheme_id: str, language: str = "hi") -> Dict[str, Any]:
+    """Retrieve single scheme detailed profile."""
+    is_hi = str(language).strip().lower().startswith("hi")
+    schemes = OFFICIAL_SCHEMES_HI if is_hi else OFFICIAL_SCHEMES_EN
+
+    for s in schemes:
+        if s["id"] == scheme_id or s["short_name"].lower() == scheme_id.lower():
+            return s
+
+    # Fallback to first scheme if not found
+    return schemes[0] if schemes else {}

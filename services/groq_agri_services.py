@@ -299,7 +299,24 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
 
         if resp.status_code != 200:
             error_text = resp.text[:300]
-            print(f"[AgriBot] Error {resp.status_code}: {error_text}")
+            print(f"[AgriBot] Error {resp.status_code}: {error_text}. Falling back to call_ai...")
+            try:
+                from services.ai_service import call_ai
+                ai_res = call_ai(
+                    prompt=message,
+                    system_instruction=system_prompt,
+                    language=language,
+                    temperature=0.6,
+                    max_tokens=1024,
+                )
+                if ai_res.get("success"):
+                    return {
+                        "reply": ai_res.get("raw") or ai_res.get("text", ""),
+                        "language": language,
+                        "model": ai_res.get("model", "ai_fallback"),
+                    }
+            except Exception as fb_err:
+                print(f"[AgriBot] Fallback error: {fb_err}")
             return {"error": f"API Error: {resp.status_code} - {error_text}"}
 
         reply = resp.json()["choices"][0]["message"]["content"]
@@ -311,7 +328,41 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
         }
 
     except requests.exceptions.Timeout:
+        try:
+            from services.ai_service import call_ai
+            ai_res = call_ai(
+                prompt=message,
+                system_instruction=system_prompt,
+                language=language,
+                temperature=0.6,
+                max_tokens=1024,
+            )
+            if ai_res.get("success"):
+                return {
+                    "reply": ai_res.get("raw") or ai_res.get("text", ""),
+                    "language": language,
+                    "model": ai_res.get("model", "ai_fallback"),
+                }
+        except Exception:
+            pass
         return {"error": "Request timed out. Please try again."}
     except Exception as e:
-        print(f"[AgriBot] Error: {e}")
+        print(f"[AgriBot] Error: {e}. Trying call_ai fallback...")
+        try:
+            from services.ai_service import call_ai
+            ai_res = call_ai(
+                prompt=message,
+                system_instruction=system_prompt,
+                language=language,
+                temperature=0.6,
+                max_tokens=1024,
+            )
+            if ai_res.get("success"):
+                return {
+                    "reply": ai_res.get("raw") or ai_res.get("text", ""),
+                    "language": language,
+                    "model": ai_res.get("model", "ai_fallback"),
+                }
+        except Exception:
+            pass
         return {"error": str(e)}

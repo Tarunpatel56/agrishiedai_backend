@@ -31,6 +31,25 @@ from services.spray_advisor_service import get_spray_recommendation
 from services.fertilizer_advisor_service import generate_fertilizer_prescription
 from services.govt_schemes_service import get_all_government_schemes, get_scheme_by_id
 from services.ai_service import call_ai
+from flask import send_from_directory
+
+# Smart Farming Services (Phase 2 - Free/Open-Source First, No IoT)
+from services.field_service import (
+    get_all_fields, get_field_by_id, create_field, update_field, delete_field
+)
+from services.satellite_monitoring_service import (
+    compute_ndvi_analysis, search_sentinel_scenes, CACHE_DIR as SATELLITE_CACHE_DIR
+)
+from services.weather_alerts_service import get_field_weather_alerts
+from services.smart_irrigation_service import (
+    calculate_irrigation_advice, get_irrigation_logs, log_irrigation_event
+)
+from services.groundwater_service import get_groundwater_trends
+from services.crop_risk_service import assess_crop_risk
+from services.crop_calendar_service import generate_crop_calendar, update_task_completion
+from services.crop_health_history_service import (
+    get_crop_health_history, add_health_record, add_follow_up_note
+)
 
 
 # ── Twilio imports with safe fallbacks (optional for cloud deployment) ──
@@ -345,12 +364,14 @@ def agri_chat_route():
         message = data['message']
         language = data.get('language', 'hi')
         history = data.get('history', [])
-        result = agri_chat(message, language, history)
+        is_voice = data.get('is_voice', False)
+        result = agri_chat(message, language, history, is_voice=is_voice)
         if "error" in result:
             return jsonify({"status": "Error", "error": result["error"]}), 500
         return jsonify({"status": "Success", "data": result})
     except Exception as e:
         print(f"[AgriShield] Chat Error: {e}")
+        return jsonify({"status": "Error", "error": str(e)}), 500
         # ========================
 # 10. TWILIO VOICE WEBHOOKS — Bilingual IVR with Groq AI
 # ========================
@@ -731,6 +752,227 @@ def ai_info():
     })
 
 
+
+# =====================================================================
+# SMART FARMING MODULE (PHASE 2 — ZERO IoT, 100% FREE/OPEN-SOURCE)
+# =====================================================================
+
+# 1. Field Management Endpoints
+@app.route('/api/smart-farming/fields', methods=['GET', 'POST'])
+def handle_smart_fields():
+    if request.method == 'GET':
+        fields = get_all_fields()
+        return jsonify({"status": "Success", "fields": fields})
+    elif request.method == 'POST':
+        data = request.get_json() or {}
+        new_field = create_field(data)
+        return jsonify({"status": "Success", "field": new_field}), 201
+
+@app.route('/api/smart-farming/fields/<field_id>', methods=['GET', 'PUT', 'DELETE'])
+def handle_smart_field_by_id(field_id):
+    if request.method == 'GET':
+        field = get_field_by_id(field_id)
+        if not field:
+            return jsonify({"status": "Error", "message": "Field not found"}), 404
+        return jsonify({"status": "Success", "field": field})
+    elif request.method == 'PUT':
+        data = request.get_json() or {}
+        updated = update_field(field_id, data)
+        if not updated:
+            return jsonify({"status": "Error", "message": "Field not found"}), 404
+        return jsonify({"status": "Success", "field": updated})
+    elif request.method == 'DELETE':
+        success = delete_field(field_id)
+        return jsonify({"status": "Success" if success else "Error", "deleted": success})
+
+# 2. Satellite Monitoring & NDVI Analysis
+@app.route('/api/smart-farming/satellite-monitoring', methods=['GET', 'POST'])
+def handle_satellite_monitoring():
+    if request.method == 'GET':
+        data = request.args
+    else:
+        data = request.get_json() or {}
+    field_id = data.get('field_id')
+    scene_id = data.get('scene_id')
+
+    field = get_field_by_id(field_id) if field_id else None
+    if not field:
+        field = {
+            "id": "adhoc_field",
+            "name": data.get("name", "Active Field"),
+            "latitude": float(data.get("latitude", 22.7196)),
+            "longitude": float(data.get("longitude", 75.8577)),
+            "crop_type": data.get("crop_type", "Wheat"),
+            "sowing_date": data.get("sowing_date", "2024-11-15")
+        }
+
+    analysis = compute_ndvi_analysis(field, scene_id=scene_id)
+    return jsonify(analysis)
+
+@app.route('/api/smart-farming/satellite-image/<filename>', methods=['GET'])
+def get_satellite_cache_image(filename):
+    return send_from_directory(SATELLITE_CACHE_DIR, filename)
+
+# 3. Weather & Crop Alerts (Open-Meteo)
+@app.route('/api/smart-farming/weather-alerts', methods=['GET'])
+def handle_weather_alerts():
+    lat = float(request.args.get('lat', 22.7196))
+    lon = float(request.args.get('lon', 75.8577))
+    crop_type = request.args.get('crop', 'Wheat')
+    alerts_data = get_field_weather_alerts(lat, lon, crop_type=crop_type)
+    return jsonify(alerts_data)
+
+# 4. Smart Irrigation Advisor (FAO-56, Zero IoT)
+@app.route('/api/smart-farming/irrigation-advisor', methods=['POST'])
+def handle_irrigation_advisor():
+    data = request.get_json() or {}
+    field_id = data.get('field_id')
+    field = get_field_by_id(field_id) if field_id else None
+    if not field:
+        field = {
+            "id": "adhoc_field",
+            "name": data.get("name", "Field"),
+            "crop_type": data.get("crop_type", "Wheat"),
+            "sowing_date": data.get("sowing_date", "2024-11-15"),
+            "soil_type": data.get("soil_type", "Black Cotton"),
+            "area_acres": float(data.get("area_acres", 2.5)),
+            "latitude": float(data.get("latitude", 22.7196)),
+            "longitude": float(data.get("longitude", 75.8577))
+        }
+    last_irrig = data.get('last_irrigation_date')
+    method = data.get('method', 'Flood')
+    advice = calculate_irrigation_advice(field, last_irrigation_date=last_irrig, method=method)
+    return jsonify(advice)
+
+@app.route('/api/smart-farming/irrigation-history', methods=['GET'])
+def handle_irrigation_history():
+    field_id = request.args.get('field_id')
+    logs = get_irrigation_logs(field_id=field_id)
+    return jsonify({"status": "Success", "logs": logs})
+
+@app.route('/api/smart-farming/irrigation-log', methods=['POST'])
+def handle_irrigation_log():
+    data = request.get_json() or {}
+    new_log = log_irrigation_event(data)
+    return jsonify({"status": "Success", "log": new_log}), 201
+
+# 5. Groundwater Trend Monitoring (CGWB Official)
+@app.route('/api/smart-farming/groundwater-trends', methods=['GET'])
+def handle_groundwater_trends():
+    district = request.args.get('district')
+    state = request.args.get('state')
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+    gw_data = get_groundwater_trends(district=district, state=state, lat=lat, lon=lon)
+    return jsonify(gw_data)
+
+# 6. Crop Health History
+@app.route('/api/smart-farming/crop-health-history', methods=['GET'])
+def handle_crop_health_history():
+    field_id = request.args.get('field_id')
+    crop_type = request.args.get('crop')
+    history = get_crop_health_history(field_id=field_id, crop_type=crop_type)
+    return jsonify(history)
+
+@app.route('/api/smart-farming/crop-health-history/record', methods=['POST'])
+def handle_add_health_record():
+    data = request.get_json() or {}
+    rec = add_health_record(data)
+    return jsonify({"status": "Success", "record": rec}), 201
+
+@app.route('/api/smart-farming/crop-health-history/follow-up', methods=['POST'])
+def handle_add_follow_up():
+    data = request.get_json() or {}
+    record_id = data.get('record_id')
+    note = data.get('note', '')
+    res = add_follow_up_note(record_id, note)
+    return jsonify(res)
+
+# 7. AI Crop Risk Assessment
+@app.route('/api/smart-farming/crop-risk-assessment', methods=['POST'])
+def handle_crop_risk_assessment():
+    data = request.get_json() or {}
+    field_id = data.get('field_id')
+    field = get_field_by_id(field_id) if field_id else None
+    if not field:
+        field = {
+            "id": "adhoc_field",
+            "name": data.get("name", "Field"),
+            "crop_type": data.get("crop_type", "Wheat"),
+            "sowing_date": data.get("sowing_date", "2024-11-15"),
+            "soil_type": data.get("soil_type", "Black Cotton"),
+            "latitude": float(data.get("latitude", 22.7196)),
+            "longitude": float(data.get("longitude", 75.8577))
+        }
+
+    weather = get_field_weather_alerts(field["latitude"], field["longitude"], crop_type=field["crop_type"])
+    ndvi = compute_ndvi_analysis(field)
+    history = get_crop_health_history(field_id=field_id)
+
+    risk_assessment = assess_crop_risk(
+        field,
+        ndvi_data=ndvi,
+        weather_data=weather,
+        scan_history=history.get("records", [])
+    )
+    return jsonify(risk_assessment)
+
+# 8. Crop Planning Calendar
+@app.route('/api/smart-farming/crop-calendar', methods=['POST'])
+def handle_crop_calendar():
+    data = request.get_json() or {}
+    field_id = data.get('field_id')
+    field = get_field_by_id(field_id) if field_id else None
+    if not field:
+        field = {
+            "id": "adhoc_field",
+            "name": data.get("name", "Field"),
+            "crop_type": data.get("crop_type", "Wheat"),
+            "sowing_date": data.get("sowing_date", "2024-11-15")
+        }
+    calendar = generate_crop_calendar(field)
+    return jsonify(calendar)
+
+@app.route('/api/smart-farming/crop-calendar/task', methods=['PATCH'])
+def handle_crop_calendar_task():
+    data = request.get_json() or {}
+    field_id = data.get('field_id', '')
+    task_id = data.get('task_id', '')
+    completed = data.get('is_completed', False)
+    success = update_task_completion(field_id, task_id, completed)
+    return jsonify({"status": "Success", "updated": success})
+
+# 9. India Meteorological Department (IMD) Official Integration
+from services.imd_service import (
+    get_imd_auth_status,
+    fetch_imd_city_forecast,
+    fetch_imd_district_rainfall,
+    fetch_imd_district_warning,
+    get_imd_agromet_advisory_status
+)
+
+@app.route('/api/smart-farming/imd/status', methods=['GET'])
+def handle_imd_status():
+    return jsonify(get_imd_auth_status())
+
+@app.route('/api/smart-farming/imd/city-forecast', methods=['GET'])
+def handle_imd_city_forecast():
+    station_id = request.args.get('id', '42182')
+    return jsonify(fetch_imd_city_forecast(station_id=station_id))
+
+@app.route('/api/smart-farming/imd/district-rainfall', methods=['GET'])
+def handle_imd_district_rainfall():
+    district_id = request.args.get('id', '164')
+    return jsonify(fetch_imd_district_rainfall(district_id=district_id))
+
+@app.route('/api/smart-farming/imd/district-warning', methods=['GET'])
+def handle_imd_district_warning():
+    district_id = request.args.get('id', '573')
+    return jsonify(fetch_imd_district_warning(district_id=district_id))
+
+@app.route('/api/smart-farming/imd/agromet-advisory', methods=['GET'])
+def handle_imd_agromet_advisory():
+    return jsonify(get_imd_agromet_advisory_status())
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))

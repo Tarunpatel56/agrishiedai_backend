@@ -236,21 +236,42 @@ STRICT RULES:
 
 You are chatting with an Indian farmer. Help them with all agriculture needs."""
 
+VOICE_ASSISTANT_SYSTEM_PROMPT = """You are AgriShield's friendly, human agricultural voice assistant speaking directly with an Indian farmer.
 
-def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
+CRITICAL VOICE SPOKEN RULES:
+1. Speak warmly, respectfully, and naturally like an experienced, caring local farmer-friend (kisan mitra) or agricultural scientist speaking face-to-face.
+2. ANSWER IN EXACTLY 2 TO 3 SHORT, CLEAR, SPOKEN SENTENCES (strictly 30 to 45 words total). NEVER give long lectures, essays, or multiple paragraphs.
+3. ABSOLUTELY NO MARKDOWN: no tables, no asterisks (**bold**), no bullet points (- or *), no numbered lists (1. 2.), no section headers (###), no HTML (<br>), no emojis, and no English abbreviations.
+4. Directly state the exact remedy, medicine name, or fertilizer dose so the farmer can act immediately.
+5. In HINDI: Speak natural, pure conversational Hindi in Devanagari script.
+   Example: "नमस्ते किसान भाई! सोयाबीन के पत्ते पीले पड़ने का मुख्य कारण पीला मोज़ेक या पोषक तत्वों की कमी हो सकती है। आप खेत में तुरंत 2 मिली प्रति लीटर इमिडाक्लोप्रिड का छिड़काव करें और पानी का ठहराव न होने दें।"
+6. In ENGLISH: Speak clear, direct, conversational Indian English.
+7. Only answer agriculture, crop health, weather, mandi prices, and farming questions. If non-farming, politely decline in one single sentence.
+"""
+
+
+def agri_chat(message: str, language: str = "hi", history: list = None, is_voice: bool = False) -> dict:
     """
     Agriculture-only chatbot powered by AI via Groq.
     language: 'hi' for Hindi, 'en' for English
     history: list of {"role": "user"/"assistant", "content": "..."} messages
+    is_voice: True for short, human-like voice conversational responses (no markdown/tables).
     """
     lang_full = "HINDI (Devanagari script)" if language == "hi" else "ENGLISH"
-    system_prompt = AGRIBOT_SYSTEM_PROMPT.format(language=lang_full)
+    if is_voice:
+        system_prompt = VOICE_ASSISTANT_SYSTEM_PROMPT.format(language=lang_full)
+        max_tokens_val = 1024
+        temp_val = 0.5
+    else:
+        system_prompt = AGRIBOT_SYSTEM_PROMPT.format(language=lang_full)
+        max_tokens_val = 1024
+        temp_val = 0.6
 
     # Build conversation with history
     messages = [{"role": "system", "content": system_prompt}]
 
     if history:
-        for h in history[-10:]:  # Keep last 10 messages for context
+        for h in history[-8:]:  # Keep recent messages for context
             messages.append({
                 "role": h.get("role", "user"),
                 "content": h.get("content", "")
@@ -264,17 +285,14 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
     if not gc.GROQ_API_KEY:
         return {"error": "GROQ_API_KEY is not configured"}
 
-    # Try with primary model, fallback if it fails
-    import services.groq_client as gc
-
     import requests
 
     def _try_chat(model_id):
         payload = {
             "model": model_id,
             "messages": messages,
-            "temperature": 0.6,
-            "max_tokens": 1024,
+            "temperature": temp_val,
+            "max_tokens": max_tokens_val,
         }
         headers = {
             "Authorization": f"Bearer {gc.GROQ_API_KEY}",
@@ -288,8 +306,19 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
         )
         return resp
 
+    def _clean_voice_output(text: str) -> str:
+        if not is_voice or not text:
+            return text
+        import re
+        cleaned = re.sub(r'\|[^\n]+\|', '', text)
+        cleaned = re.sub(r'[*_#`~]', '', cleaned)
+        cleaned = re.sub(r'<[^>]+>', '', cleaned)
+        cleaned = re.sub(r'\n+', ' ', cleaned)
+        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+        return cleaned
+
     try:
-        print(f"[AgriShield][AgriBot] Calling Groq ({gc.GROQ_TEXT_MODEL})...")
+        print(f"[AgriShield][AgriBot] Calling Groq ({gc.GROQ_TEXT_MODEL}, is_voice={is_voice})...")
         resp = _try_chat(gc.GROQ_TEXT_MODEL)
 
         # Auto-fallback
@@ -306,12 +335,13 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
                     prompt=message,
                     system_instruction=system_prompt,
                     language=language,
-                    temperature=0.6,
-                    max_tokens=1024,
+                    temperature=temp_val,
+                    max_tokens=max_tokens_val,
                 )
                 if ai_res.get("success"):
+                    reply = _clean_voice_output(ai_res.get("raw") or ai_res.get("text", ""))
                     return {
-                        "reply": ai_res.get("raw") or ai_res.get("text", ""),
+                        "reply": reply,
                         "language": language,
                         "model": ai_res.get("model", "ai_fallback"),
                     }
@@ -319,7 +349,8 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
                 print(f"[AgriBot] Fallback error: {fb_err}")
             return {"error": f"API Error: {resp.status_code} - {error_text}"}
 
-        reply = resp.json()["choices"][0]["message"]["content"]
+        raw_reply = resp.json()["choices"][0]["message"]["content"]
+        reply = _clean_voice_output(raw_reply)
         used_model = resp.json()["model"]
         return {
             "reply": reply,
@@ -334,12 +365,13 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
                 prompt=message,
                 system_instruction=system_prompt,
                 language=language,
-                temperature=0.6,
-                max_tokens=1024,
+                temperature=temp_val,
+                max_tokens=max_tokens_val,
             )
             if ai_res.get("success"):
+                reply = _clean_voice_output(ai_res.get("raw") or ai_res.get("text", ""))
                 return {
-                    "reply": ai_res.get("raw") or ai_res.get("text", ""),
+                    "reply": reply,
                     "language": language,
                     "model": ai_res.get("model", "ai_fallback"),
                 }
@@ -354,12 +386,13 @@ def agri_chat(message: str, language: str = "hi", history: list = None) -> dict:
                 prompt=message,
                 system_instruction=system_prompt,
                 language=language,
-                temperature=0.6,
-                max_tokens=1024,
+                temperature=temp_val,
+                max_tokens=max_tokens_val,
             )
             if ai_res.get("success"):
+                reply = _clean_voice_output(ai_res.get("raw") or ai_res.get("text", ""))
                 return {
-                    "reply": ai_res.get("raw") or ai_res.get("text", ""),
+                    "reply": reply,
                     "language": language,
                     "model": ai_res.get("model", "ai_fallback"),
                 }

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "irrig_20261028223828",
+    "field_id": "field_indore_01",
+    "field_name": "Malwa Wheat Farm",
+    "crop_type": "Wheat",
+    "irrigation_date": "2026-10-28",
+    "depth_mm": 40.0,
+    "method": "Flood",
+    "notes": "Automated test irrigation",
+    "created_at": "2026-10-28T22:38:28.437473"
+  },
+  {
+    "id": "irrig_20261028221044",
+    "field_id": "field_indore_01",
+    "field_name": "Malwa Wheat Farm",
+    "crop_type": "Wheat",
+    "irrigation_date": "2026-10-28",
+    "depth_mm": 40.0,
+    "method": "Flood",
+    "notes": "Automated test irrigation",
+    "created_at": "2026-10-28T22:10:44.654929"
+  },
+  {
+    "id": "irrig_20261028210824",
+    "field_id": "field_indore_01",
+    "field_name": "Malwa Wheat Farm",
+    "crop_type": "Wheat",
+    "irrigation_date": "2026-10-28",
+    "depth_mm": 40.0,
+    "method": "Flood",
+    "notes": "Automated test irrigation",
+    "created_at": "2026-10-28T21:08:24.810163"
+  }
+]

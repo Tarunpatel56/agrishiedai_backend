@@ -1,0 +1,68 @@
+[
+  {
+    "id": "rec_001",
+    "field_id": "field_indore_01",
+    "field_name": "Malwa Wheat Farm (मालवा गेहूं खेत)",
+    "crop_type": "Wheat",
+    "record_type": "CROP_SCAN",
+    "date": "2024-12-15",
+    "diagnosis": "Yellow Rust (पीला रतुआ)",
+    "confidence_pct": 92.4,
+    "health_score": 68,
+    "satellite_ndvi": 0.58,
+    "severity": "Moderate (प्रारंभिक लक्षण)",
+    "recommendation": "Propiconazole 25% EC @ 1 ml/L spray immediately. Avoid excessive urea.",
+    "notes": "Farmer sprayed propiconazole on Dec 17. Leaves recovering well.",
+    "follow_ups": [
+      {
+        "date": "2024-12-20",
+        "note": "Checked 5 days after spray: pustule spread halted."
+      }
+    ]
+  },
+  {
+    "id": "rec_002",
+    "field_id": "field_indore_01",
+    "field_name": "Malwa Wheat Farm (मालवा गेहूं खेत)",
+    "crop_type": "Wheat",
+    "record_type": "SATELLITE_NDVI",
+    "date": "2024-12-28",
+    "diagnosis": "Healthy Canopy Vigor",
+    "confidence_pct": 98.0,
+    "health_score": 88,
+    "satellite_ndvi": 0.74,
+    "severity": "None (स्वस्थ)",
+    "recommendation": "Maintain scheduled tillering irrigation.",
+    "notes": "Vegetative canopy expanded significantly after first watering.",
+    "follow_ups": [
+      {
+        "date": "2026-10-28 09:08 PM",
+        "note": "Crop has shown strong vegetative recovery after scheduled watering."
+      },
+      {
+        "date": "2026-10-28 10:10 PM",
+        "note": "Crop has shown strong vegetative recovery after scheduled watering."
+      },
+      {
+        "date": "2026-10-28 10:38 PM",
+        "note": "Crop has shown strong vegetative recovery after scheduled watering."
+      }
+    ]
+  },
+  {
+    "id": "rec_003",
+    "field_id": "field_bhopal_02",
+    "field_name": "Narmada Soybean Plot (सोयाबीन प्रक्षेत्र)",
+    "crop_type": "Soybean",
+    "record_type": "SOIL_ANALYSIS",
+    "date": "2024-06-22",
+    "diagnosis": "Clay Loam — Low Available Nitrogen",
+    "confidence_pct": 95.0,
+    "health_score": 75,
+    "satellite_ndvi": 0.28,
+    "severity": "Mild Deficiency",
+    "recommendation": "Apply 100 kg SSP + 20 kg Zinc Sulphate basal dose before monsoon sowing.",
+    "notes": "Applied well-rotted FYM (2 tonnes/acre) during second plowing.",
+    "follow_ups": []
+  }
+]
